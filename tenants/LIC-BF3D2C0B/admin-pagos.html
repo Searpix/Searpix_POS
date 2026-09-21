@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Pagos - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><img src="https://placehold.co/40x40/6C3CE1/fff?text=F" alt="Logo"><h1>Freakers POS</h1></div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">☰</button>
+          <h2>💳 Administrar Pagos</h2>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+
+          <table class="data-table" id="pagosTable">
+          <thead><tr><th>ID Pago</th><th>Orden</th><th>Método</th><th>Monto</th><th>Usuario</th><th>Fecha</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    initPage('pagos', true);
+
+    async function loadPagos() {
+      const data = await apiGet('pagos.php');
+      const pagos = data || [];
+      let html = '';
+      pagos.forEach(p => {
+        const metodoBadge = p.metodo === 'EFECTIVO' ? 'badge-success' : p.metodo === 'TARJETA' || p.metodo === 'DATAFONO' ? 'badge-info' : p.metodo === 'NEQUI' || p.metodo === 'TRANSFERENCIA' ? 'badge-primary' : p.metodo === 'QR' ? 'badge-warning' : 'badge-info';
+        html += `<tr>
+          <td style="font-size:0.75rem;">${esc(p.idPago)}</td>
+          <td>${esc(p.idOrden)}</td>
+          <td><span class="badge ${metodoBadge}">${esc(p.metodo)}</span></td>
+          <td style="font-weight:700;color:var(--color-success);">${formatCOP(p.valor || p.monto)}</td>
+          <td>${esc(p.usuario)}</td>
+          <td style="font-size:0.75rem;">${timeAgo(p.fecha)}</td>
+        </tr>`;
+      });
+      document.querySelector('#pagosTable tbody').innerHTML = html;
+    }
+
+    loadPagos();
+  </script>
+</body>
+</html>

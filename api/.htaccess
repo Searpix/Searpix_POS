@@ -1,0 +1,18 @@
+Options -Indexes
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+<FilesMatch "^.*$">
+Require all denied
+</FilesMatch>
+<FilesMatch "^(auth|licenses|payments|webhooks|comprobante|tickets|ticket_adjunto|reset)\.php$">
+Require all granted
+</FilesMatch>
+<FilesMatch "^provision_diag\.php$">
+Require all granted
+</FilesMatch>
+<FilesMatch "^setup\.php$">
+Require all granted
+</FilesMatch>

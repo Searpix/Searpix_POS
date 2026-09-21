@@ -1,0 +1,11 @@
+# Carpeta raiz de instancias POS (una subcarpeta por licencia).
+# No se permite listar el directorio ni acceder a la raiz directamente,
+# pero SI se sirven las instancias en subcarpetas /tenants/<idLicencia>/...
+# (cada instancia trae su propio .htaccess con sus reglas).
+Options -Indexes
+DirectoryIndex index.html index.php
+
+# Proteger archivos sensibles a cualquier nivel.
+<FilesMatch "^(?:\.env|\.provisioned|.*\.(?:log|sql|bak|ini|conf))$">
+Require all denied
+</FilesMatch>

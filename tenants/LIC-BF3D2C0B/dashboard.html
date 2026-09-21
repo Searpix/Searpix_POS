@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="https://placehold.co/40x40/6C3CE1/fff?text=F" alt="Logo">
+        <h1>Freakers POS</h1>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">☰</button>
+          <h2>📊 Dashboard</h2>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <!-- Date filter -->
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
+        <label style="font-size:0.82rem;color:rgba(255,255,255,0.5);">Desde:</label>
+        <input type="date" id="fInicio" class="form-input" style="width:150px;">
+        <label style="font-size:0.82rem;color:rgba(255,255,255,0.5);">Hasta:</label>
+        <input type="date" id="fFin" class="form-input" style="width:150px;">
+        <button class="btn btn-primary btn-sm" onclick="loadDashboard()">Filtrar</button>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <!-- Charts -->
+      <div class="dash-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div class="chart-container">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:12px;">📈 Ventas Mensuales</h3>
+          <canvas id="chartMensual" height="200"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:12px;">📊 Ventas Semanales</h3>
+          <canvas id="chartSemanal" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="dash-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="chart-container">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:12px;">🕐 Hoy vs Ayer</h3>
+          <canvas id="chartHoyAyer" height="160"></canvas>
+        </div>
+        <div class="card">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:12px;">🕐 Últimas 5 Órdenes</h3>
+          <div id="ultimasOrdenes"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:12px;">👤 Últimas 5 Conexiones</h3>
+        <div id="ultimasConexiones"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    initPage('dashboard');
+
+    // Set default dates
+    const hoy = new Date();
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    document.getElementById('fInicio').value = inicioMes.toISOString().split('T')[0];
+    document.getElementById('fFin').value = hoy.toISOString().split('T')[0];
+
+    let chartMensualObj, chartSemanalObj, chartHoyAyerObj;
+
+    async function loadDashboard() {
+      const fInicio = document.getElementById('fInicio').value;
+      const fFin = document.getElementById('fFin').value;
+      const data = await apiGet('dashboard.php', { action: 'avanzado', fInicio, fFin });
+      if (!data || data.error) { toast('Error cargando dashboard', 'error'); return; }
+
+      // KPIs
+      document.getElementById('kpiGrid').innerHTML = `
+        <div class="kpi-card kpi-info"><div class="kpi-label">Total Órdenes</div><div class="kpi-value">${data.totalOrdenes}</div></div>
+        <div class="kpi-card kpi-success"><div class="kpi-label">Mesas Disponibles</div><div class="kpi-value">${data.mesasDisponibles}</div></div>
+        <div class="kpi-card kpi-danger"><div class="kpi-label">Mesas Ocupadas</div><div class="kpi-value">${data.mesasOcupadas}</div></div>
+        <div class="kpi-card kpi-warning"><div class="kpi-label">VENTAS</div><div class="kpi-value">${formatCOP(data.totalCaja)}</div><div class="kpi-sub">Ventas totales</div></div>
+        <div class="kpi-card kpi-acento"><div class="kpi-label">EGRESOS</div><div class="kpi-value">${formatCOP(data.totalEgresos)}</div></div>
+        <div class="kpi-card kpi-primary"><div class="kpi-label">TOTAL EN CAJA</div><div class="kpi-value">${formatCOP(data.totalEnCaja)}</div><div class="kpi-sub">Ventas - Egresos</div></div>
+      `;
+
+      // Monthly chart
+      const meses = data.chartMensual.map(m => m.mes);
+      const vals = data.chartMensual.map(m => m.total);
+      if (chartMensualObj) chartMensualObj.destroy();
+      chartMensualObj = new Chart(document.getElementById('chartMensual'), {
+        type: 'line',
+        data: { labels: meses, datasets: [{ label: 'Ventas', data: vals, borderColor: '#6C3CE1', backgroundColor: 'rgba(108,60,225,0.1)', fill: true, tension: 0.4 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: 'rgba(255,255,255,0.4)' }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: 'rgba(255,255,255,0.4)' }, grid: { display: false } } } }
+      });
+
+      // Weekly chart
+      const dias = data.chartSemanal.map(d => d.dia);
+      const dVals = data.chartSemanal.map(d => d.total);
+      if (chartSemanalObj) chartSemanalObj.destroy();
+      chartSemanalObj = new Chart(document.getElementById('chartSemanal'), {
+        type: 'bar',
+        data: { labels: dias, datasets: [{ label: 'Ventas', data: dVals, backgroundColor: 'rgba(233,69,96,0.7)', borderRadius: 6 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: 'rgba(255,255,255,0.4)' }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: 'rgba(255,255,255,0.4)' }, grid: { display: false } } } }
+      });
+
+      // Hoy vs Ayer
+      if (chartHoyAyerObj) chartHoyAyerObj.destroy();
+      chartHoyAyerObj = new Chart(document.getElementById('chartHoyAyer'), {
+        type: 'bar',
+        data: { labels: ['Ayer', 'Hoy'], datasets: [{ label: 'Ventas', data: [data.ventasAyer, data.ventasHoy], backgroundColor: ['rgba(251,191,36,0.7)', 'rgba(74,222,128,0.7)'], borderRadius: 6 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: 'rgba(255,255,255,0.4)' }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: 'rgba(255,255,255,0.4)' }, grid: { display: false } } } }
+      });
+
+      // Last 5 orders
+      let ordHtml = '<div class="table-responsive"><table class="data-table"><thead><tr><th>ID</th><th>Mesa</th><th>Total</th><th>Mesero</th><th>Hora</th></tr></thead><tbody>';
+      data.ultimasOrdenes.forEach(o => {
+        ordHtml += `<tr><td>${esc(o.idOrden)}</td><td>${esc(o.idMesa)}</td><td>${formatCOP(o.total)}</td><td>${esc(o.mesero)}</td><td>${timeAgo(o.fecha)}</td></tr>`;
+      });
+      ordHtml += '</tbody></table></div>';
+      document.getElementById('ultimasOrdenes').innerHTML = ordHtml;
+
+      // Last 5 connections
+      let conHtml = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Usuario</th><th>Acci\u00f3n</th><th>Fecha</th></tr></thead><tbody>';
+      data.ultimasConexiones.forEach(c => {
+        conHtml += `<tr><td>${esc(c.idUsuario)}</td><td>${esc(c.accion)}</td><td>${timeAgo(c.fecha)}</td></tr>`;
+      });
+      conHtml += '</tbody></table></div>';
+      document.getElementById('ultimasConexiones').innerHTML = conHtml;
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

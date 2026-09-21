@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Comandix — Sistema POS profesional para restaurantes. Ventas, domicilios, facturación y más en un solo lugar.">
+<title>Comandix — POS profesional para restaurantes</title>
+<link rel="stylesheet" href="assets/css/landing.css">
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#inicio" class="brand">
+      <span class="brand-badge"><img src="assets/img/logo.png" alt="Comandix" style="width:100%;height:100%;object-fit:contain;border-radius:inherit"></span>
+      <span>Sear<span class="gradient-text">POx</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#servicios" class="link">Servicios</a>
+      <a href="#planes" class="link">Planes</a>
+      <a href="#contacto" class="link">Contacto</a>
+      <a href="views/login" class="link">Iniciar sesión</a>
+      <a href="views/register" class="btn btn-primary" style="padding:10px 22px">Crear cuenta</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menú">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#servicios">Servicios</a>
+    <a href="#planes">Planes</a>
+    <a href="#contacto">Contacto</a>
+    <a href="views/login">Iniciar sesión</a>
+    <a href="views/register" style="color:var(--primary-2);font-weight:700">Crear cuenta</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="container hero-grid">
+    <div class="reveal">
+      <span class="eyebrow">
+        <svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg>
+        Software para restaurantes
+      </span>
+      <h1>El <span class="gradient-text">POS todo-en-uno</span> para tu restaurante</h1>
+      <p class="lead">Gestiona ventas, domicilios, mesas y facturación desde un solo lugar. Rápido, moderno y hecho para crecer contigo.</p>
+      <div class="hero-cta">
+        <a href="#planes" class="btn btn-primary btn-lg">Ver planes</a>
+        <a href="#contacto" class="btn btn-ghost btn-lg">Hablar con ventas</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num">+500</div><div class="lbl">restaurantes</div></div>
+        <div class="stat"><div class="num">99.9%</div><div class="lbl">disponibilidad</div></div>
+        <div class="stat"><div class="num">24/7</div><div class="lbl">soporte</div></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="mockup">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="screen-hero">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff"><path d="M3 11l9-8 9 8M5 10v10h14V10M9 20v-6h6v6"/></svg>
+        </div>
+        <div class="row3">
+          <div class="tile"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg></div>
+          <div class="tile"><svg viewBox="0 0 24 24"><path d="M3 7h13v10H3zM16 10h4l1 3v4h-5M5.5 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg></div>
+          <div class="tile"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        </div>
+        <div class="bar w70"></div>
+        <div class="bar w45"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- SERVICIOS -->
+<section class="section-pad" id="servicios">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Todo lo que tu restaurante <span class="gradient-text">necesita</span></h2>
+      <p>Módulos diseñados para agilizar la operación diaria y hacer crecer tu negocio.</p>
+    </div>
+    <div class="services">
+      <article class="service reveal">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg></div>
+        <h3>Punto de venta</h3>
+        <p>Cobra rápido, gestiona órdenes y controla tu caja en tiempo real.</p>
+      </article>
+      <article class="service reveal">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M3 7h13v10H3zM16 10h4l1 3v4h-5M5.5 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg></div>
+        <h3>Domicilios unificados</h3>
+        <p>Integra apps de delivery y controla comisiones desde un solo panel.</p>
+      </article>
+      <article class="service reveal">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l3 3v17l-2-1-2 1-2-1-2 1-2-1-2 1V2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></div>
+        <h3>Facturación</h3>
+        <p>Emite tickets y facturas conforme a la normativa, sin complicaciones.</p>
+      </article>
+      <article class="service reveal">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.8-.9L3 20l1.1-4.1A8.4 8.4 0 1 1 21 11.5z"/></svg></div>
+        <h3>WhatsApp integrado</h3>
+        <p>Recibe pedidos y confirma órdenes directamente por WhatsApp.</p>
+      </article>
+      <article class="service reveal">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+        <h3>Dashboard y reportes</h3>
+        <p>Visualiza ventas, productos top y rendimiento por sucursal.</p>
+      </article>
+      <article class="service reveal">
+        <div class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12z"/><path d="M9 21v-6h6v6M9 12h.01M15 12h.01"/></svg></div>
+        <h3>Multi-sucursal</h3>
+        <p>Administra varias sedes con usuarios y permisos independientes.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PLANES -->
+<section class="section-pad tint" id="planes">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Planes que se adaptan a <span class="gradient-text">tu negocio</span></h2>
+      <p>Paga mensual o anual. Sin permanencia: cancela cuando quieras.</p>
+    </div>
+    <div class="plans">
+      <div class="plan reveal">
+        <div class="picon"><svg class="icon" viewBox="0 0 24 24"><path d="M4.5 16.5 3 21l4.5-1.5M9 15l6-6M14 4l6 6-8 8-6-2-2-6 8-8z"/></svg></div>
+        <h3>Básico</h3>
+        <div class="desc">Para empezar a digitalizar tu restaurante.</div>
+        <div class="price">$49.900<span>/mes</span></div>
+        <div class="price-year">o $499.900 al año</div>
+        <ul>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Punto de venta</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Facturación básica</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>1 dispositivo</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Soporte por tickets</li>
+        </ul>
+        <a href="views/register" class="btn btn-ghost btn-block">Elegir Básico</a>
+      </div>
+      <div class="plan featured reveal">
+        <span class="plan-tag">MÁS POPULAR</span>
+        <div class="picon"><svg class="icon" viewBox="0 0 24 24"><path d="m12 2 3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></div>
+        <h3>Profesional</h3>
+        <div class="desc">Para restaurantes en crecimiento.</div>
+        <div class="price">$89.900<span>/mes</span></div>
+        <div class="price-year">o $899.900 al año</div>
+        <ul>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Todo lo de Básico</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Domicilios unificados</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>WhatsApp integrado</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>3 dispositivos</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Dashboard avanzado</li>
+        </ul>
+        <a href="views/register" class="btn btn-primary btn-block">Elegir Profesional</a>
+      </div>
+      <div class="plan reveal">
+        <div class="picon"><svg class="icon" viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12z"/><path d="M9 21v-6h6v6M9 12h.01M15 12h.01"/></svg></div>
+        <h3>Enterprise</h3>
+        <div class="desc">Para cadenas y operaciones grandes.</div>
+        <div class="price">$149.900<span>/mes</span></div>
+        <div class="price-year">o $1.499.900 al año</div>
+        <ul>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Todo lo de Profesional</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>10 dispositivos</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Multi-sucursal</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>API personalizada</li>
+          <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Soporte 24/7</li>
+        </ul>
+        <a href="views/register" class="btn btn-ghost btn-block">Elegir Enterprise</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- CONTACTO -->
+<section class="section-pad" id="contacto">
+  <div class="container contact-grid">
+    <div class="contact-info reveal">
+      <h2>¿Hablamos? <span class="gradient-text">Escríbenos</span></h2>
+      <p class="sub">Cuéntanos sobre tu restaurante y te ayudamos a elegir el plan ideal. Respondemos en horas hábiles.</p>
+      <div class="contact-line">
+        <span class="cl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        <span><small>Soporte</small><b>Tickets desde tu panel de cliente</b></span>
+      </div>
+      <div class="contact-line">
+        <span class="cl-ic"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7 10-7"/></svg></span>
+        <span><small>Correo</small><b>searpix@gmail.com</b></span>
+      </div>
+    </div>
+    <form class="form-card reveal" id="contactForm" novalidate>
+      <div class="field-2">
+        <div class="field">
+          <label for="f-nombre">Nombre</label>
+          <input id="f-nombre" name="nombre" type="text" required placeholder="Tu nombre">
+        </div>
+        <div class="field">
+          <label for="f-tel">Teléfono</label>
+          <input id="f-tel" name="telefono" type="tel" placeholder="Opcional">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-email">Correo</label>
+        <input id="f-email" name="email" type="email" required placeholder="tucorreo@ejemplo.com">
+      </div>
+      <div class="field">
+        <label for="f-asunto">Asunto</label>
+        <input id="f-asunto" name="asunto" type="text" placeholder="¿En qué te ayudamos?">
+      </div>
+      <div class="field">
+        <label for="f-msg">Mensaje</label>
+        <textarea id="f-msg" name="mensaje" required placeholder="Cuéntanos sobre tu restaurante..."></textarea>
+      </div>
+      <input class="honeypot" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" id="contactSubmit" class="btn btn-primary btn-block btn-lg">Enviar mensaje</button>
+      <p class="form-msg" id="contactMsg"></p>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <a href="#inicio" class="brand" style="font-size:1.1rem">
+      <span class="brand-badge" style="width:30px;height:30px"><img src="assets/img/logo.png" alt="Comandix" style="width:100%;height:100%;object-fit:contain;border-radius:inherit"></span>
+      <span>Sear<span class="gradient-text">POx</span></span>
+    </a>
+    <p class="copy">&copy; 2026 Comandix. Todos los derechos reservados.</p>
+    <nav class="footer-links">
+      <a href="views/login">Iniciar sesión</a>
+      <a href="#planes">Planes</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- Soporte flotante (tickets) -->
+<a href="views/login" class="wa-fab" aria-label="Soporte por tickets" title="Soporte por tickets">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</a>
+
+<script>
+(function(){
+  // Navbar sombra al hacer scroll
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function(){
+    nav.classList.toggle('scrolled', window.scrollY > 10);
+  });
+
+  // Menú móvil
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('mobileMenu');
+  toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  menu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ menu.classList.remove('open'); });
+  });
+
+  // Reveal on scroll
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function(el){ obs.observe(el); });
+
+  // Formulario de contacto asíncrono
+  var form = document.getElementById('contactForm');
+  var btn = document.getElementById('contactSubmit');
+  var msg = document.getElementById('contactMsg');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    msg.className = 'form-msg';
+    var data = {};
+    new FormData(form).forEach(function(v,k){ data[k] = v; });
+    var original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    fetch('enviar.php', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(json){
+      msg.textContent = json.mensaje || (json.exito ? 'Enviado.' : 'Ocurrió un error.');
+      msg.className = 'form-msg show ' + (json.exito ? 'ok' : 'err');
+      if(json.exito) form.reset();
+    })
+    .catch(function(){
+      msg.textContent = 'No se pudo enviar. Inténtalo de nuevo o escríbenos a searpix@gmail.com.';
+      msg.className = 'form-msg show err';
+    })
+    .finally(function(){ btn.disabled = false; btn.textContent = original; });
+  });
+})();
+</script>
+</body>
+</html>

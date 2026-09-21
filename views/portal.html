@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Portal — Comandix Licencias</title>
+<link rel="stylesheet" href="../assets/css/dashboard.css?v=3">
+</head>
+<body class="dashboard-body">
+<div class="bg-orbs" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img class="brand-logo" src="../assets/img/logo.png" alt="Comandix" id="brandLogo">
+    <span class="nav-logo-text">Comandix</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a role="button" tabindex="0" class="nav-item active" data-section="licenses" onclick="switchSection('licenses',this)">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.5 12.5 8-8m-2 2 2 2m-4 0 2 2"/></svg></span><span>Mis Licencias</span>
+    </a>
+    <a role="button" tabindex="0" class="nav-item" data-section="systems" onclick="switchSection('systems',this)">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><span>Mis Sistemas</span>
+    </a>
+    <a role="button" tabindex="0" class="nav-item" data-section="purchase" onclick="switchSection('purchase',this)">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 12.3a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L21 7H6"/></svg></span><span>Comprar Licencia</span>
+    </a>
+    <a role="button" tabindex="0" class="nav-item" data-section="payments" onclick="switchSection('payments',this)">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span><span>Mis Pagos</span>
+    </a>
+    <a role="button" tabindex="0" class="nav-item" data-section="support" onclick="switchSection('support',this)">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="13" width="4" height="7" rx="1.5"/><rect x="18" y="13" width="4" height="7" rx="1.5"/><path d="M20 19a4 4 0 0 1-4 3h-2"/></svg></span><span>Soporte</span>
+    </a>
+    <a role="button" tabindex="0" class="nav-item" data-section="profile" onclick="switchSection('profile',this)">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span>Mi Perfil</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="logout()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Cerrar Sesión</button>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <h1 class="page-title" id="pageTitle">Mis Licencias</h1>
+    </div>
+    <div class="topbar-right">
+      <div class="notification-bell" onclick="loadNotifications()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="badge" id="notifBadge" style="display:none">0</span>
+      </div>
+      <div class="user-info">
+        <span id="userName">Usuario</span>
+        <div class="avatar" id="userAvatar">U</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sections -->
+  <div class="content-area">
+
+    <!-- My Licenses -->
+    <section id="sec-licenses" class="section active">
+      <div class="section-cards" id="licenseCards">
+        <!-- Filled by JS -->
+      </div>
+    </section>
+
+    <!-- My Systems (multi-tenant) -->
+    <section id="sec-systems" class="section">
+      <div class="support-card" style="margin-bottom:16px">
+        <h3>Selecciona el sistema que quieres ejecutar</h3>
+        <p>Cada licencia activa tiene su propia instancia del punto de venta, independiente y editable. Elige una para abrirla.</p>
+      </div>
+      <div class="section-cards" id="systemsCards">
+        <!-- Filled by JS -->
+      </div>
+    </section>
+
+    <!-- Purchase -->
+    <section id="sec-purchase" class="section">
+      <div class="purchase-grid" id="purchaseGrid">
+        <!-- Filled by JS -->
+      </div>
+    </section>
+
+    <!-- Payments -->
+    <section id="sec-payments" class="section">
+      <div class="payments-table-wrap">
+        <table class="data-table" id="paymentsTable">
+          <thead>
+            <tr><th>Referencia</th><th>Plan</th><th>Monto</th><th>Método</th><th>Ref. pasarela</th><th>Estado</th><th>Fecha pago</th><th>Verificado</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="paymentsBody">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Support (Tickets) -->
+    <section id="sec-support" class="section">
+      <div class="support-card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <h3 style="margin:0">Centro de Soporte por Tickets</h3>
+          <p style="margin:6px 0 0">Crea un ticket y nuestro equipo te responderá aquí mismo. Si un caso no puede resolverse por este medio, el equipo habilitará la atención por WhatsApp.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openTicketModal()">Nuevo ticket</button>
+      </div>
+      <div class="payments-table-wrap">
+        <table class="data-table" id="ticketsTable">
+          <thead>
+            <tr><th>Asunto</th><th>Categoría</th><th>Prioridad</th><th>Estado</th><th>Mensajes</th><th>Actualizado</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="ticketsBody">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Profile -->
+    <section id="sec-profile" class="section">
+      <div class="profile-card" id="profileCard">
+        <!-- Filled by JS -->
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Checkout Modal (Wompi / PayPal / Manual) -->
+<div class="modal-overlay" id="checkoutModal" style="display:none">
+  <div class="modal-card checkout-card">
+    <div class="modal-header">
+      <h3>Finalizar compra</h3>
+      <button class="modal-close" onclick="closeModal('checkoutModal')">✕</button>
+    </div>
+
+    <!-- Resumen del pedido -->
+    <div class="checkout-summary" id="checkoutSummary">
+      <div class="cs-plan">
+        <span class="cs-icon" id="csIcon"></span>
+        <div>
+          <div class="cs-name" id="csName">Plan</div>
+          <div class="cs-period" id="csPeriod">Mensual</div>
+        </div>
+      </div>
+      <div class="cs-total">
+        <span class="cs-total-label">Total</span>
+        <span class="cs-total-amount" id="csAmount">$0</span>
+      </div>
+    </div>
+
+    <!-- Selector de método -->
+    <div class="pay-methods" id="payMethods">
+      <button type="button" class="pay-method active" data-method="wompi" onclick="selectMethod('wompi',this)">
+        <span class="pm-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+        <span class="pm-title">Wompi</span>
+        <span class="pm-desc">Tarjeta, PSE, Nequi · COP</span>
+      </button>
+      <button type="button" class="pay-method" data-method="paypal" onclick="selectMethod('paypal',this)">
+        <span class="pm-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20"/></svg></span>
+        <span class="pm-title">PayPal</span>
+        <span class="pm-desc">Tarjeta internacional · USD</span>
+      </button>
+      <button type="button" class="pay-method" data-method="manual" onclick="selectMethod('manual',this)">
+        <span class="pm-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4a1 1 0 0 1 1-1h11l4 4v15"/><path d="M4 22h17M8 7h5M8 11h8M8 15h8"/></svg></span>
+        <span class="pm-title">Transferencia</span>
+        <span class="pm-desc">Sube tu comprobante · COP</span>
+      </button>
+    </div>
+
+    <!-- Panel Wompi -->
+    <div class="pay-panel active" id="panel-wompi">
+      <p class="pay-hint">Serás dirigido a la pasarela segura de Wompi para completar el pago en pesos colombianos.</p>
+      <button type="button" class="btn btn-primary btn-block" id="btnWompi" onclick="payWithWompi()">Pagar con Wompi</button>
+    </div>
+
+    <!-- Panel PayPal -->
+    <div class="pay-panel" id="panel-paypal">
+      <p class="pay-hint">Pago internacional en USD. Monto aproximado: <strong id="paypalUsd">—</strong></p>
+      <div id="paypalButtons"></div>
+      <div class="pay-loading" id="paypalLoading">Cargando PayPal…</div>
+    </div>
+
+    <!-- Panel Manual -->
+    <div class="pay-panel" id="panel-manual">
+      <p class="pay-hint">Genera la orden y luego sube el comprobante de tu transferencia (Nequi, Daviplata, banco, etc.). El administrador la aprobará.</p>
+      <button type="button" class="btn btn-primary btn-block" onclick="payManual()">Generar orden y subir comprobante</button>
+    </div>
+
+    <div class="pay-secure"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pago seguro · tus datos no se almacenan en nuestros servidores</div>
+  </div>
+</div>
+
+<!-- Upload Payment Modal -->
+<div class="modal-overlay" id="uploadModal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Subir Comprobante de Pago</h3>
+      <button class="modal-close" onclick="closeModal('uploadModal')">✕</button>
+    </div>
+    <form id="uploadForm" onsubmit="return uploadPayment(event)">
+      <input type="hidden" id="uploadPagoId">
+      <div class="form-group">
+        <label>Método de Pago</label>
+        <select id="uploadMetodo" required>
+          <option value="Transferencia">Transferencia Bancaria</option>
+          <option value="Nequi">Nequi</option>
+          <option value="Daviplata">Daviplata</option>
+          <option value="Efectivo">Efectivo (Corresponsal)</option>
+          <option value="Tarjeta">Tarjeta Débito/Crédito</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Comprobante (imagen)</label>
+        <input type="file" id="uploadComprobante" accept="image/*" required>
+      </div>
+      <div class="form-group">
+        <label>Notas adicionales</label>
+        <textarea id="uploadNotas" rows="3" placeholder="Referencia de transferencia, número, etc."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Enviar Comprobante</button>
+    </form>
+  </div>
+</div>
+
+<!-- Nuevo Ticket Modal -->
+<div class="modal-overlay" id="ticketModal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Nuevo ticket de soporte</h3>
+      <button class="modal-close" onclick="closeModal('ticketModal')">✕</button>
+    </div>
+    <form id="ticketForm" onsubmit="return crearTicket(event)">
+      <div class="form-group">
+        <label>Asunto</label>
+        <input type="text" id="ticketAsunto" maxlength="200" required placeholder="Resume tu problema">
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <select id="ticketCategoria">
+          <option value="GENERAL">General</option>
+          <option value="FACTURACION">Facturación / Pagos</option>
+          <option value="TECNICO">Problema técnico</option>
+          <option value="LICENCIA">Licencia</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Describe tu solicitud</label>
+        <textarea id="ticketMensaje" rows="4" required placeholder="Cuéntanos con detalle qué sucede"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Enviar ticket</button>
+    </form>
+  </div>
+</div>
+
+<!-- Ver Ticket / Conversacion Modal -->
+<div class="modal-overlay" id="ticketViewModal" style="display:none">
+  <div class="modal-card" style="max-width:640px;width:96%">
+    <div class="modal-header">
+      <h3 id="tvTitulo">Ticket</h3>
+      <button class="modal-close" onclick="cerrarTicketView()">✕</button>
+    </div>
+    <div id="tvMeta" style="font-size:.85rem;opacity:.8;margin-bottom:10px"></div>
+    <div id="tvMensajes" class="chat-thread" style="height:360px;max-height:52vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(0,0,0,.12)"></div>
+    <div id="tvWhatsapp" style="display:none;margin-bottom:12px"></div>
+
+    <!-- Aviso cuando el ticket esta resuelto -->
+    <div id="tvResuelto" style="display:none;margin-bottom:12px;padding:12px;border-radius:12px;border:1px solid var(--border);background:rgba(34,197,94,.10);color:var(--text);font-size:.85rem">
+      ✅ Este ticket fue marcado como <b>resuelto</b> por el equipo de soporte. Ya no es posible enviar mensajes. Si necesitas ayuda con este mismo caso, crea un nuevo ticket.
+    </div>
+
+    <!-- Composer -->
+    <form id="tvReplyForm" onsubmit="return responderTicket(event)">
+      <input type="hidden" id="tvTicketId">
+      <div id="tvComposer" style="border:1px solid var(--border);border-radius:12px;padding:8px;background:var(--bg-card)">
+        <div id="tvAdjuntoPreview" style="display:none;align-items:center;gap:8px;font-size:.8rem;margin-bottom:6px;padding:6px 8px;border:1px dashed var(--border);border-radius:8px">
+          <span id="tvAdjuntoNombre" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <button type="button" class="btn btn-sm btn-outline" onclick="tvQuitarAdjunto()">Quitar</button>
+        </div>
+        <textarea id="tvReplyMensaje" rows="2" placeholder="Escribe tu respuesta…" style="width:100%;border:none;background:transparent;resize:none;color:inherit;outline:none"></textarea>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;position:relative">
+          <button type="button" class="btn btn-sm btn-outline" title="Emojis" onclick="tvToggleEmojis(event)">😊</button>
+          <button type="button" class="btn btn-sm btn-outline" title="Adjuntar imagen" onclick="document.getElementById('tvImgInput').click()">🖼️</button>
+          <button type="button" class="btn btn-sm btn-outline" title="Adjuntar archivo" onclick="document.getElementById('tvFileInput').click()">📎</button>
+          <div style="flex:1"></div>
+          <button type="submit" class="btn btn-primary btn-sm">Enviar</button>
+          <div id="tvEmojiPanel" style="display:none;position:absolute;bottom:44px;left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:8px;box-shadow:0 8px 28px rgba(0,0,0,.35);z-index:5;max-width:264px"></div>
+        </div>
+      </div>
+      <input type="file" id="tvImgInput" accept="image/*" style="display:none" onchange="tvArchivoSeleccionado(this)">
+      <input type="file" id="tvFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,image/*" style="display:none" onchange="tvArchivoSeleccionado(this)">
+    </form>
+  </div>
+</div>
+
+<!-- Resetear Licencia Modal (2FA por correo) -->
+<div class="modal-overlay" id="resetModal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Resetear licencia</h3>
+      <button class="modal-close" onclick="closeModal('resetModal')">✕</button>
+    </div>
+    <p style="font-size:.9rem;line-height:1.55;color:var(--text-muted);margin:0 0 12px">
+      Se generará una <strong>nueva clave de activación</strong> para esta licencia y se
+      cerrarán los dispositivos que la estén usando actualmente (útil si alguien más tuvo
+      acceso). Tu <strong>fecha de activación y de expiración no cambian</strong>.
+    </p>
+    <div style="background:rgba(108,60,225,.08);border:1px solid var(--border-2);border-radius:11px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Licencia a resetear</div>
+      <div id="resetClave" style="font-family:monospace;font-weight:700;letter-spacing:.5px"></div>
+    </div>
+    <p style="font-size:.85rem;color:var(--text-muted);margin:0 0 16px">
+      🔒 Por seguridad, te enviaremos un <strong>correo de confirmación</strong> a tu email
+      registrado. El reinicio solo se aplicará cuando hagas clic en el enlace del correo.
+    </p>
+    <input type="hidden" id="resetLicId">
+    <button type="button" id="resetConfirmBtn" class="btn btn-danger btn-block" onclick="confirmReset(event)">
+      Enviar correo de confirmación
+    </button>
+  </div>
+</div>
+
+<!-- Notification Panel -->
+<div class="notif-panel" id="notifPanel" style="display:none">
+  <div class="notif-header">
+    <h3>Notificaciones</h3>
+    <button onclick="document.getElementById('notifPanel').style.display='none'">✕</button>
+  </div>
+  <div class="notif-body" id="notifBody">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<script src="../assets/js/portal.js?v=4"></script>
+</body>
+</html>

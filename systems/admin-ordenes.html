@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Ordenes - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    .orden-detail-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999;display:none;align-items:center;justify-content:center}
+    .orden-detail-overlay.show{display:flex}
+    .orden-detail-box{background:var(--color-secundario);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:24px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto}
+    .od-title{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .od-section{margin-bottom:12px}
+    .od-section-title{font-size:0.78rem;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+    .od-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.82rem}
+    .od-row .od-label{color:rgba(255,255,255,0.5)}
+    .od-row .od-value{color:rgba(255,255,255,0.9);font-weight:600}
+    .od-row.od-total{font-size:1rem;font-weight:800;border-top:2px solid rgba(255,255,255,0.1);padding-top:8px;margin-top:4px}
+    .od-row.od-total .od-value{color:var(--color-acento)}
+    .od-items{margin:8px 0}
+    .od-item{display:flex;justify-content:space-between;padding:4px 0;font-size:0.78rem;color:rgba(255,255,255,0.6)}
+    .od-item .od-item-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .od-item .od-item-sub{flex-shrink:0;font-weight:600;color:rgba(255,255,255,0.8)}
+    .od-comments{background:rgba(233,69,96,0.08);border:1px solid rgba(233,69,96,0.15);border-radius:10px;padding:10px;font-size:0.82rem;color:rgba(233,69,96,0.85);font-style:italic;margin:6px 0}
+    .od-actions{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+    .od-close-row{text-align:right;margin-top:10px}
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="" alt="Logo">
+        <h1>Freakers POS</h1>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">&#9776;</button>
+          <h2>&#128203; Administrar Ordenes</h2>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <select id="filtroEstado" class="form-input" style="width:auto;min-width:130px" onchange="loadOrdenes()">
+            <option value="">Todos</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="COBRADA">Cobrada</option>
+            <option value="CANCELADA">Cancelada</option>
+          </select>
+          <select id="filtroTipo" class="form-input" style="width:auto;min-width:130px" onchange="loadOrdenes()">
+            <option value="">Todos</option>
+            <option value="MESA">En Mesa</option>
+            <option value="DOMICILIO">Domicilio</option>
+          </select>
+        </div>
+        <div class="table-responsive">
+
+          <table class="data-table" id="ordenesTable">
+          <thead><tr><th>ID</th><th>Tipo</th><th>Mesa/Canal</th><th>Items</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="modalEdit">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>&#9998; Editar Orden</h3>
+        <button class="modal-close" onclick="closeModal('modalEdit')">&#10005;</button>
+      </div>
+      <div class="form-group">
+        <label>Mesa</label>
+        <input type="text" id="editMesa" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Total</label>
+        <input type="number" id="editTotal" class="form-input" step="100" min="0">
+      </div>
+      <div class="form-group">
+        <label>Domicilio Fee</label>
+        <input type="number" id="editDomicilio" class="form-input" step="100" min="0" value="0">
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="editEstado" class="form-input">
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="COBRADA">Cobrada</option>
+          <option value="CANCELADA">Cancelada</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="guardarEdicion()">Guardar</button>
+    </div>
+  </div>
+
+  <!-- Detail Overlay -->
+  <div class="orden-detail-overlay" id="ordenDetailOverlay" onclick="if(event.target===this)closeOrdenDetail()">
+    <div class="orden-detail-box" id="ordenDetailBox"></div>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    let ordenes = [];
+
+    async function loadOrdenes() {
+      const estadoFiltro = document.getElementById('filtroEstado').value;
+      const tipoFiltro = document.getElementById('filtroTipo').value;
+      const params = { action: 'todas' };
+      if (estadoFiltro) params.estado = estadoFiltro;
+      if (tipoFiltro) params.tipo = tipoFiltro;
+      const data = await apiGet('ordenes.php', params);
+      ordenes = Array.isArray(data) ? data : [];
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector('#ordenesTable tbody');
+      let html = '';
+      ordenes.forEach(function(o) {
+        const tipoBadge = o.tipo === 'DOMICILIO' ? 'badge-info' : 'badge-warning';
+        const estadoBadge = {
+          PENDIENTE: 'badge-warning',
+          COBRADA: 'badge-success',
+          CANCELADA: 'badge-danger'
+        }[o.estado] || 'badge-warning';
+        const itemNames = (o.items || []).map(function(it) {
+          return it.cantidad + 'x ' + (it.producto || it.idProducto);
+        }).join(', ');
+        const tipo = o.tipo === 'DOMICILIO' ? 'Domicilio' : 'Mesa';
+        const mesaCanal = o.tipo === 'DOMICILIO' ? (o.canal || o.cliente_nombre || '-') : (o.numero || o.idMesa || '-');
+        html += '<tr>' +
+          '<td style="font-weight:600;font-size:0.76rem">' + esc(o.idOrden || '') + '</td>' +
+          '<td><span class="badge ' + tipoBadge + '">' + esc(tipo) + '</span></td>' +
+          '<td>' + esc(mesaCanal) + '</td>' +
+          '<td style="font-size:0.76rem;color:rgba(255,255,255,0.55)">' + esc(itemNames) + '</td>' +
+          '<td style="font-weight:700">' + formatCOP(o.total) + '</td>' +
+          '<td><span class="badge ' + estadoBadge + '">' + esc(o.estado) + '</span></td>' +
+          '<td style="font-size:0.72rem;color:rgba(255,255,255,0.4)">' + esc(o.fecha || '') + '</td>' +
+          '<td>' +
+            '<button class="btn btn-sm btn-outline" onclick="viewOrden(\'' + o.idOrden + '\')" title="Ver detalle">&#128065;</button> ' +
+            '<button class="btn btn-sm btn-outline" onclick="openEditModal(\'' + o.idOrden + '\')">&#9998;</button> ' +
+            '<button class="btn btn-sm btn-danger" onclick="eliminarOrden(\'' + o.idOrden + '\')">&#128465;</button>' +
+          '</td>' +
+        '</tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    /* ====== DETAIL VIEW ====== */
+    async function viewOrden(id) {
+      const data = await apiGet('ordenes.php', { action: 'una', idOrden: id });
+      if (!data || data.error) { toast('Error al cargar orden', 'error'); return; }
+      const o = data;
+      const tipo = o.tipo === 'DOMICILIO' ? 'Domicilio' : 'Mesa';
+      const domFee = parseFloat(o.domicilio || 0);
+      const subtotal = parseFloat(o.subtotal || o.total || 0) - domFee;
+      const total = parseFloat(o.total || 0);
+      const itemsHtml = (o.items || []).map(function(it) {
+        const lineTotal = parseFloat(it.totalLinea || (it.precioUnitario || it.precio) * it.cantidad);
+        return '<div class="od-item">' +
+          '<span class="od-item-name">' + it.cantidad + 'x ' + esc(it.producto || it.idProducto) + ' (' + formatCOP(it.precioUnitario || it.precio) + ' c/u)</span>' +
+          '<span class="od-item-sub">' + formatCOP(lineTotal) + '</span>' +
+        '</div>';
+      }).join('');
+
+      const isDom = o.tipo === 'DOMICILIO';
+      const mesaInfo = o.numero || o.idMesa || '-';
+      const clientInfo = isDom ? [
+        { l: 'Cliente', v: o.cliente_nombre || '-' },
+        { l: 'Telefono', v: o.cliente_telefono || '-' },
+        { l: 'Direccion', v: o.cliente_direccion || '-' },
+        { l: 'Canal', v: o.canal || '-' }
+      ] : [
+        { l: 'Mesa', v: mesaInfo },
+        { l: 'Mesero', v: o.mesero || '-' }
+      ];
+      const clientRows = clientInfo.map(function(r) {
+        return '<div class="od-row"><span class="od-label">' + r.l + '</span><span class="od-value">' + esc(r.v) + '</span></div>';
+      }).join('');
+
+      let box = document.getElementById('ordenDetailBox');
+      box.innerHTML =
+        '<div class="od-title">&#128203; Orden #' + esc(o.idOrden) + '</div>' +
+
+        '<div class="od-section">' +
+          '<div class="od-section-title">Info</div>' +
+          '<div class="od-row"><span class="od-label">Tipo</span><span class="od-value">' + esc(tipo) + '</span></div>' +
+          '<div class="od-row"><span class="od-label">Estado</span><span class="od-value">' + esc(o.estado) + '</span></div>' +
+          '<div class="od-row"><span class="od-label">Fecha</span><span class="od-value">' + esc(o.fecha || '-') + '</span></div>' +
+          clientRows +
+        '</div>' +
+
+        (o.comentario ? '<div class="od-comments">&#128221; ' + esc(o.comentario) + '</div>' : '') +
+
+        '<div class="od-section">' +
+          '<div class="od-section-title">Productos</div>' +
+          '<div class="od-items">' + itemsHtml + '</div>' +
+        '</div>' +
+
+        '<div class="od-section">' +
+          '<div class="od-section-title">Totales</div>' +
+          '<div class="od-row"><span class="od-label">Subtotal Productos</span><span class="od-value">' + formatCOP(subtotal) + '</span></div>' +
+          (domFee > 0 ? '<div class="od-row"><span class="od-label">Domicilio Fee</span><span class="od-value">' + formatCOP(domFee) + '</span></div>' : '') +
+          '<div class="od-row od-total"><span class="od-label">Total</span><span class="od-value">' + formatCOP(total) + '</span></div>' +
+        '</div>' +
+
+        '<div class="od-actions">' +
+          '<button class="btn btn-primary" style="width:100%" onclick="openEditModal(\'' + o.idOrden + '\')">&#9998; Editar Orden</button>' +
+          '<button class="btn btn-outline" style="width:100%;border-color:var(--color-acento);color:var(--color-acento)" onclick="printTicket(\'' + o.idOrden + '\')">&#128424; Imprimir Factura</button>' +
+          '<button class="btn btn-outline" style="width:100%" onclick="closeOrdenDetail()">Cerrar</button>' +
+        '</div>';
+
+      document.getElementById('ordenDetailOverlay').classList.add('show');
+    }
+
+    function closeOrdenDetail() {
+      document.getElementById('ordenDetailOverlay').classList.remove('show');
+    }
+
+    /* ====== EDIT MODAL ====== */
+    async function openEditModal(id) {
+      const data = await apiGet('ordenes.php', { action: 'una', idOrden: id });
+      if (!data || data.error) { toast('Error al cargar orden', 'error'); return; }
+      const o = data;
+      document.getElementById('editMesa').value = o.numero || o.idMesa || '';
+      document.getElementById('editTotal').value = o.total || 0;
+      document.getElementById('editDomicilio').value = o.domicilio || 0;
+      document.getElementById('editEstado').value = o.estado || 'PENDIENTE';
+      document.getElementById('modalEdit').dataset.id = id;
+      openModal('modalEdit');
+    }
+
+    async function guardarEdicion() {
+      const id = document.getElementById('modalEdit').dataset.id;
+      const mesa = document.getElementById('editMesa').value.trim();
+      const total = parseFloat(document.getElementById('editTotal').value) || 0;
+      const domicilio = parseFloat(document.getElementById('editDomicilio').value) || 0;
+      const estado = document.getElementById('editEstado').value;
+      const res = await apiPost('ordenes.php', {
+        action: 'editar',
+        idOrden: id,
+        mesa: mesa,
+        total: total,
+        domicilio: domicilio,
+        estado: estado
+      });
+      if (res && res.exito) {
+        toast('Orden actualizada');
+        closeModal('modalEdit');
+        closeOrdenDetail();
+        loadOrdenes();
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error', 'error');
+      }
+    }
+
+    async function eliminarOrden(id) {
+      if (!confirm('Eliminar esta orden?')) return;
+      const res = await apiPost('ordenes.php', { action: 'eliminar', idOrden: id });
+      if (res && res.exito) {
+        toast('Orden eliminada');
+        loadOrdenes();
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error', 'error');
+      }
+    }
+
+    initPage('ordenes', true);
+    loadOrdenes();
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (document.getElementById('modalEdit').classList.contains('show')) {
+          closeModal('modalEdit');
+        } else if (document.getElementById('ordenDetailOverlay').classList.contains('show')) {
+          closeOrdenDetail();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear Cuenta — Comandix Licencias</title>
+<link rel="stylesheet" href="../assets/css/auth.css">
+</head>
+<body>
+<div class="auth-container">
+  <div class="auth-left">
+    <div class="auth-left-content">
+      <div class="auth-logo"><img src="../assets/img/logo.png" alt="Comandix" style="width:100%;height:100%;object-fit:contain;border-radius:inherit"></div>
+      <h1>Comandix</h1>
+      <p>Empieza gratis. Sin compromiso.</p>
+      <div class="auth-features">
+        <div class="af-item">✓ 7 días de prueba gratuita</div>
+        <div class="af-item">✓ Licencia Básica incluida</div>
+        <div class="af-item">✓ Sin tarjeta de crédito</div>
+        <div class="af-item">✓ Soporte técnico incluido</div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-card">
+      <h2>Crear tu cuenta</h2>
+      <p class="auth-hint">Completa tus datos y obtén tu licencia de prueba</p>
+      <form id="registerForm" class="auth-form" onsubmit="return clientRegister(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="regName" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="regPhone" placeholder="300 123 4567">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Nombre del Restaurante</label>
+          <input type="text" id="regRestaurant" placeholder="Mi Restaurante" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="tu@email.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="regPass" placeholder="Mínimo 6 caracteres" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Ciudad</label>
+          <select id="regCity" required>
+            <option value="">Selecciona tu ciudad</option>
+            <option value="Medellín">Medellín</option>
+            <option value="Bogotá">Bogotá</option>
+            <option value="Cali">Cali</option>
+            <option value="Barranquilla">Barranquilla</option>
+            <option value="Cartagena">Cartagena</option>
+            <option value="Bucaramanga">Bucaramanga</option>
+            <option value="Pereira">Pereira</option>
+            <option value="Manizales">Manizales</option>
+            <option value="Otra">Otra</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="regBtn">
+          <span>Crear Cuenta y Obtener Prueba</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <p class="auth-switch">¿Ya tienes cuenta? <a href="login">Inicia sesión</a></p>
+      </form>
+
+      <div class="auth-divider"><span>o</span></div>
+      <a href="https://wa.me/573235636580" target="_blank" class="btn btn-wa btn-block">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+        Ayuda por WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+<script src="../assets/js/auth.js"></script>
+</body>
+</html>

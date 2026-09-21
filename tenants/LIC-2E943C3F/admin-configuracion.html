@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuracion - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="" alt="Logo">
+        <h1>Freakers</h1>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger">&#9776;</button>
+          <h2>&#9881;&#65039; Configuracion</h2>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <!-- Tabs - BUG 3 FIX: pass the button element via 'this' in onclick -->
+      <div class="dom-tabs" style="display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid rgba(255,255,255,0.06)">
+        <button class="dom-tab active" onclick="switchConfigTab(this,'datos')">&#127970; Datos del Negocio</button>
+        <button class="dom-tab" onclick="switchConfigTab(this,'personalizacion')">&#127912; Personalizacion</button>
+        <button class="dom-tab" onclick="switchConfigTab(this,'domicilios')">&#128661; Domicilios & Apps</button>
+        <button class="dom-tab" onclick="switchConfigTab(this,'whatsapp')">&#128172; WhatsApp</button>
+        <button class="dom-tab" onclick="switchConfigTab(this,'respuestas')">&#128172; Respuestas Rapidas</button>
+        <button class="dom-tab" onclick="switchConfigTab(this,'factura')">&#128424; Factura / Ticket</button>
+      </div>
+
+      <!-- Tab: Datos del Negocio -->
+      <div class="config-panel active" id="tabDatos">
+        <div class="card" style="max-width:700px">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:16px">Informacion del Negocio</h3>
+          <div class="form-group">
+            <label>Nombre del Negocio</label>
+            <input type="text" id="cfgNombreNegocio" class="form-input" placeholder="Freakers">
+          </div>
+          <div class="form-group">
+            <label>Nombre del Restaurante</label>
+            <input type="text" id="cfgNombreRestaurante" class="form-input" placeholder="FREAKERS">
+          </div>
+          <div class="form-group">
+            <label>Razon Social</label>
+            <input type="text" id="cfgRazonSocial" class="form-input" placeholder="BURGERS AND FAST FOOD">
+          </div>
+          <div class="form-group">
+            <label>NIT</label>
+            <input type="text" id="cfgNit" class="form-input" placeholder="1214722370">
+          </div>
+          <div class="form-group">
+            <label>Direccion</label>
+            <input type="text" id="cfgDireccion" class="form-input" placeholder="Medellin, Colombia">
+          </div>
+          <div class="form-group">
+            <label>Telefono</label>
+            <input type="text" id="cfgTelefono" class="form-input" placeholder="310 574 3129">
+          </div>
+          <div class="form-group">
+            <label>Subtitulo</label>
+            <input type="text" id="cfgSubtitulo" class="form-input" placeholder="Burgers & Fast Food">
+          </div>
+          <div class="form-group">
+            <label>Logo (URL)</label>
+            <input type="url" id="cfgLogo" class="form-input" placeholder="https://...">
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <button class="btn btn-primary" onclick="saveDatos()">Guardar Datos</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Personalizacion Absoluta -->
+      <div class="config-panel" id="tabPersonalizacion">
+        <div class="card" style="max-width:700px">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:6px">&#127912; Personalizacion Absoluta</h3>
+          <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:20px">Cambia colores, tipografia, logo y mas. Todo es configurable.</p>
+
+          <!-- Logo Upload -->
+          <div class="form-group">
+            <label>Logo del Negocio</label>
+            <div class="img-input-tabs">
+              <button type="button" class="img-input-tab active" onclick="switchLogoTab(this,'upload')">&#128228; Subir Logo</button>
+              <button type="button" class="img-input-tab" onclick="switchLogoTab(this,'url')">&#128279; URL</button>
+            </div>
+            <div class="img-input-panel active" id="logoTabUpload">
+              <div class="upload-zone" id="logoDropZone" onclick="document.getElementById('logoFileInput').click()">
+                <div class="upload-icon">&#128228;</div>
+                <div class="upload-text">Arrastra tu logo aqui o <strong>selecciona archivo</strong></div>
+              </div>
+              <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+            </div>
+            <div class="img-input-panel" id="logoTabUrl">
+              <input type="url" id="cfgLogoUrl" class="form-input" placeholder="https://ejemplo.com/logo.png" oninput="previewLogoUrl()">
+            </div>
+            <div class="img-preview-row" id="logoPreview" style="display:none;margin-top:8px">
+              <img id="logoPreviewImg" src="" style="width:56px;height:56px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,0.1)">
+              <span class="img-url" id="logoPreviewUrl"></span>
+              <button type="button" class="btn btn-sm btn-outline" onclick="clearLogo()">&#10005;</button>
+            </div>
+          </div>
+
+          <!-- Colors -->
+          <div class="form-group">
+            <label>Color Primario</label>
+            <div style="display:flex;gap:10px;align-items:center">
+              <input type="color" id="cfgColorPrimario" value="#6C3CE1" style="width:48px;height:36px;border:none;border-radius:6px;cursor:pointer;background:transparent">
+              <input type="text" id="cfgColorPrimarioHex" class="form-input" style="width:110px" placeholder="#6C3CE1" oninput="syncColorFromHex('Primario')">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Color Secundario</label>
+            <div style="display:flex;gap:10px;align-items:center">
+              <input type="color" id="cfgColorSecundario" value="#1A1A2E" style="width:48px;height:36px;border:none;border-radius:6px;cursor:pointer;background:transparent">
+              <input type="text" id="cfgColorSecundarioHex" class="form-input" style="width:110px" placeholder="#1A1A2E" oninput="syncColorFromHex('Secundario')">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Color Acento</label>
+            <div style="display:flex;gap:10px;align-items:center">
+              <input type="color" id="cfgColorAcento" value="#E94560" style="width:48px;height:36px;border:none;border-radius:6px;cursor:pointer;background:transparent">
+              <input type="text" id="cfgColorAcentoHex" class="form-input" style="width:110px" placeholder="#E94560" oninput="syncColorFromHex('Acento')">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Color Fondo</label>
+            <div style="display:flex;gap:10px;align-items:center">
+              <input type="color" id="cfgColorFondo" value="#16213E" style="width:48px;height:36px;border:none;border-radius:6px;cursor:pointer;background:transparent">
+              <input type="text" id="cfgColorFondoHex" class="form-input" style="width:110px" placeholder="#16213E" oninput="syncColorFromHex('Fondo')">
+            </div>
+          </div>
+
+          <!-- Typography -->
+          <div class="form-group">
+            <label>Tipografia</label>
+            <div class="font-selector" id="fontSelector"></div>
+          </div>
+          <div class="form-group">
+            <label>Fuente Personalizada (Google Fonts)</label>
+            <input type="text" id="cfgCustomFont" class="form-input" placeholder="Ej: Roboto Slab, Bebas Neue...">
+            <small style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:4px">Escribe el nombre exacto de una fuente de Google Fonts</small>
+          </div>
+
+          <!-- Preview -->
+          <div class="card" style="margin-top:16px;border:1px dashed rgba(255,255,255,0.1)">
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:8px">VISTA PREVIA</div>
+            <div id="brandingPreview" style="display:flex;align-items:center;gap:14px">
+              <img id="previewLogo" src="" style="width:44px;height:44px;border-radius:10px;object-fit:cover">
+              <div>
+                <div id="previewName" style="font-size:1.2rem;font-weight:800">Freakers</div>
+                <div id="previewSub" style="font-size:0.78rem;color:var(--color-acento)">Burgers & Fast Food</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:20px">
+            <button class="btn btn-primary" onclick="savePersonalizacion()">Guardar Personalizacion</button>
+            <button class="btn btn-factory" onclick="factoryReset()">&#128260; Restaurar Fabrica</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Domicilios & Apps -->
+      <div class="config-panel" id="tabDomicilios">
+        <div class="card" style="max-width:700px">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:6px">&#128661; Apps de Domicilio</h3>
+          <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:18px">Configura cada app de delivery: activa/desactiva, comision, credenciales API.</p>
+          <div id="deliveryAppsList"></div>
+          <div style="margin-top:14px">
+            <button class="btn btn-outline" onclick="addDeliveryApp()">+ Agregar App</button>
+          </div>
+        </div>
+        <div class="card" style="max-width:700px;margin-top:16px">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:12px">&#128176; Configuracion de Domicilios</h3>
+          <div class="form-group">
+            <label>Valor del Domicilio (COP)</label>
+            <input type="number" id="cfgValorDomicilio" class="form-input" value="5000" min="0">
+          </div>
+          <div class="form-group">
+            <label>Auto-imprimir al recibir domicilio</label>
+            <select id="cfgAutoImprimir" class="form-input">
+              <option value="SI">Si</option>
+              <option value="NO">No</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="saveDomicilioConfig()" style="margin-top:10px">Guardar</button>
+        </div>
+      </div>
+
+      <!-- Tab: WhatsApp -->
+      <div class="config-panel" id="tabWhatsapp">
+        <div class="card" style="max-width:700px">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:6px">&#128172; Integracion WhatsApp</h3>
+          <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:18px">Configura WhatsApp para comunicacion directa con clientes y notificaciones de domicilios.</p>
+          <div class="form-group">
+            <label>Numero de WhatsApp (con codigo de pais)</label>
+            <input type="text" id="cfgWhatsappNumero" class="form-input" placeholder="573105743129">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Business API Token</label>
+            <input type="text" id="cfgWhatsappApiToken" class="form-input" placeholder="EAAx... (opcional para API)">
+            <small style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:4px">Requiere cuenta de Meta Business aprobada. Sin token, se usara wa.me para mensajes directos.</small>
+          </div>
+          <div class="form-group">
+            <label>WABA ID (WhatsApp Business Account ID)</label>
+            <input type="text" id="cfgWhatsappWabaId" class="form-input" placeholder="1234567890 (opcional)">
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button class="btn btn-primary" onclick="saveWhatsappConfig()">Guardar WhatsApp</button>
+            <button class="btn btn-outline" onclick="testWhatsappConnection()">&#128272; Probar Conexion</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Respuestas Rapidas -->
+      <div class="config-panel" id="tabRespuestas">
+        <div class="card" style="max-width:800px">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:6px">&#128172; Respuestas Rapidas</h3>
+          <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:18px">Plantillas de mensajes rapidos para domicilios. Usa variables como <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{cliente}</code>, <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{productos}</code>, <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{total}</code>, <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{domicilio}</code>, <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{total_domicilio}</code>, <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{canal}</code>, <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{id_orden}</code>, <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{negocio}</code>, <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.72rem">{telefono}</code></p>
+          <div id="respuestasList"></div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button class="btn btn-outline" onclick="openRespuestaModal()">+ Agregar Respuesta</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Factura / Ticket -->
+      <div class="config-panel" id="tabFactura">
+        <div class="card" style="max-width:800px">
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:6px">&#128424; Diseno de Factura / Ticket</h3>
+          <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:14px">Configura los bloques del ticket de impresion. Arrastra para reordenar, activa/desactiva, y edita el contenido de cada bloque.</p>
+          <p style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:12px">Variables disponibles: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{logo}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{negocio}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{razon_social}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{nit}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{direccion}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{telefono}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{id_orden}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{fecha}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{tipo}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{mesa}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{mesero}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{cliente_nombre}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{cliente_telefono}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{cliente_direccion}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{canal}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{subtotal}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{domicilio}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{total}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{items_tabla}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{info_cliente}</code> <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:0.68rem">{comentario}</code></p>
+          <div id="ticketBlocksList"></div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="saveTicketConfig()">Guardar Ticket</button>
+            <button class="btn btn-outline" onclick="addTicketBlock()">+ Agregar Bloque</button>
+            <button class="btn btn-outline" onclick="previewTicket()">&#128065; Vista Previa</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal: Respuesta Rapida -->
+      <div id="respuestaModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
+        <div class="card" style="width:90%;max-width:520px;padding:24px;position:relative">
+          <h3 id="respuestaModalTitle" style="font-size:1rem;font-weight:700;margin-bottom:16px">Nueva Respuesta Rapida</h3>
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="rrNombre" class="form-input" placeholder="Ej: Confirmacion de pedido">
+          </div>
+          <div class="form-group">
+            <label>Mensaje</label>
+            <textarea id="rrMensaje" class="form-input" rows="5" placeholder="Hola {cliente}, tu pedido ha sido confirmado..." style="resize:vertical;min-height:80px"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Variables (separadas por coma)</label>
+            <input type="text" id="rrVariables" class="form-input" placeholder="cliente, productos, total, domicilio, total_domicilio, canal, id_orden, negocio, telefono">
+          </div>
+          <div class="form-group" style="display:flex;align-items:center;gap:10px">
+            <label style="margin:0">Activo</label>
+            <div id="rrActivoToggle" class="toggle on" onclick="toggleRrActivo()" style="cursor:pointer"></div>
+          </div>
+          <div class="form-group">
+            <label>Orden</label>
+            <input type="number" id="rrOrden" class="form-input" value="0" min="0">
+          </div>
+          <!-- Preview -->
+          <div style="margin-top:8px;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.1)">
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-bottom:6px">VISTA PREVIA</div>
+            <div id="rrPreview" style="font-size:0.85rem;color:rgba(255,255,255,0.8);white-space:pre-wrap"></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <button class="btn btn-primary" onclick="saveRespuesta()">Guardar</button>
+            <button class="btn btn-outline" onclick="closeRespuestaModal()">Cancelar</button>
+          </div>
+          <button style="position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:1.4rem;cursor:pointer" onclick="closeRespuestaModal()">&times;</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    /* Config Tab Styles */
+    var tabStyle = document.createElement('style');
+    tabStyle.textContent = '\n      .config-panel { display: none; }\n      .config-panel.active { display: block; }\n      .dom-tab.active { background: var(--color-primario); color: #fff; }\n    ';
+    document.head.appendChild(tabStyle);
+
+    var deliveryApps = [];
+    var currentLogoTab = 'upload';
+
+    async function initConfig() {
+      await initPage('config', true);
+      await loadConfigPage();
+      setupColorSync();
+      renderFontSelector();
+      setupLogoDrop();
+    }
+
+    async function loadConfigPage() {
+      // Load all config values
+      document.getElementById('cfgNombreNegocio').value = CONFIG.NOMBRE_NEGOCIO || '';
+      document.getElementById('cfgNombreRestaurante').value = CONFIG.NOMBRE_RESTAURANTE || '';
+      document.getElementById('cfgRazonSocial').value = CONFIG.RAZON_SOCIAL || '';
+      document.getElementById('cfgNit').value = CONFIG.NIT || '';
+      document.getElementById('cfgDireccion').value = CONFIG.DIRECCION || '';
+      document.getElementById('cfgTelefono').value = CONFIG.TELEFONO || '';
+      document.getElementById('cfgSubtitulo').value = CONFIG.SUBTITULO || '';
+      document.getElementById('cfgLogo').value = CONFIG.LOGO || '';
+
+      // Personalizacion
+      document.getElementById('cfgColorPrimario').value = CONFIG.COLOR_PRIMARIO || '#6C3CE1';
+      document.getElementById('cfgColorPrimarioHex').value = CONFIG.COLOR_PRIMARIO || '#6C3CE1';
+      document.getElementById('cfgColorSecundario').value = CONFIG.COLOR_SECUNDARIO || '#1A1A2E';
+      document.getElementById('cfgColorSecundarioHex').value = CONFIG.COLOR_SECUNDARIO || '#1A1A2E';
+      document.getElementById('cfgColorAcento').value = CONFIG.COLOR_ACENTO || '#E94560';
+      document.getElementById('cfgColorAcentoHex').value = CONFIG.COLOR_ACENTO || '#E94560';
+      document.getElementById('cfgColorFondo').value = CONFIG.COLOR_FONDO || '#16213E';
+      document.getElementById('cfgColorFondoHex').value = CONFIG.COLOR_FONDO || '#16213E';
+
+      // Logo preview
+      if (CONFIG.LOGO) {
+        document.getElementById('logoPreview').style.display = 'flex';
+        document.getElementById('logoPreviewImg').src = CONFIG.LOGO;
+        document.getElementById('logoPreviewUrl').textContent = CONFIG.LOGO;
+        document.getElementById('previewLogo').src = CONFIG.LOGO;
+      }
+      document.getElementById('previewName').textContent = CONFIG.NOMBRE_NEGOCIO || 'Freakers';
+      document.getElementById('previewSub').textContent = CONFIG.SUBTITULO || 'Burgers & Fast Food';
+
+      // WhatsApp
+      document.getElementById('cfgWhatsappNumero').value = CONFIG.WHATSAPP_NUMERO || '';
+      document.getElementById('cfgWhatsappApiToken').value = CONFIG.WHATSAPP_API_TOKEN || '';
+      document.getElementById('cfgWhatsappWabaId').value = CONFIG.WHATSAPP_WABA_ID || '';
+
+      // Domicilio config
+      document.getElementById('cfgValorDomicilio').value = CONFIG.VALOR_DOMICILIO || '5000';
+      document.getElementById('cfgAutoImprimir').value = CONFIG.AUTO_IMPRIMIR || 'SI';
+
+      // Delivery Apps
+      await loadDeliveryApps();
+    }
+
+    // BUG 3 FIX: Completely rewritten switchConfigTab() - the original referenced
+    // undefined variable `el` causing ReferenceError that broke ALL tab navigation.
+    // Now receives the clicked button element via 'this' in onclick.
+    function switchConfigTab(btn, tab) {
+      document.querySelectorAll('.dom-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.config-panel').forEach(function(p) { p.classList.remove('active'); });
+      // Add active to the clicked button
+      btn.classList.add('active');
+      // Show the corresponding panel
+      var tabMap = { datos: 'tabDatos', personalizacion: 'tabPersonalizacion', domicilios: 'tabDomicilios', whatsapp: 'tabWhatsapp', respuestas: 'tabRespuestas', factura: 'tabFactura' };
+      var panelId = tabMap[tab];
+      if (panelId) {
+        var panel = document.getElementById(panelId);
+        if (panel) panel.classList.add('active');
+      }
+    }
+
+    /* Color sync between picker and hex input */
+    function setupColorSync() {
+      ['Primario','Secundario','Acento','Fondo'].forEach(function(name) {
+        var picker = document.getElementById('cfgColor' + name);
+        var hex = document.getElementById('cfgColor' + name + 'Hex');
+        picker.addEventListener('input', function() {
+          hex.value = picker.value;
+          updateBrandingPreview();
+        });
+        hex.addEventListener('input', function() {
+          if (/^#[0-9A-Fa-f]{6}$/.test(hex.value)) picker.value = hex.value;
+          updateBrandingPreview();
+        });
+      });
+    }
+
+    function syncColorFromHex(name) {
+      var hex = document.getElementById('cfgColor' + name + 'Hex').value;
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+        document.getElementById('cfgColor' + name).value = hex;
+      }
+      updateBrandingPreview();
+    }
+
+    function updateBrandingPreview() {
+      var r = document.documentElement;
+      r.style.setProperty('--color-primario', document.getElementById('cfgColorPrimario').value);
+      r.style.setProperty('--color-secundario', document.getElementById('cfgColorSecundario').value);
+      r.style.setProperty('--color-acento', document.getElementById('cfgColorAcento').value);
+      r.style.setProperty('--color-fondo', document.getElementById('cfgColorFondo').value);
+    }
+
+    /* Font Selector */
+    function renderFontSelector() {
+      var container = document.getElementById('fontSelector');
+      var current = CONFIG.TIPOGRAFIA || 'Inter';
+      container.innerHTML = (AVAILABLE_FONTS || []).map(function(f) {
+        return '<div class="font-option' + (f.value === current ? ' active' : '') + '" onclick="selectFont(\'' + f.value + '\', this)">' +
+          '<div class="font-preview" style="font-family:\'' + f.value + '\'">' + f.value + '</div>' +
+          '<div class="font-name">' + f.label + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function selectFont(font, el) {
+      document.querySelectorAll('.font-option').forEach(function(o) { o.classList.remove('active'); });
+      el.classList.add('active');
+      var r = document.documentElement;
+      r.style.setProperty('--font-family', "'" + font + "', sans-serif");
+      document.body.style.fontFamily = "'" + font + "', sans-serif";
+      document.getElementById('cfgCustomFont').value = '';
+    }
+
+    /* Logo Tab Switch - FIX: pass element explicitly */
+    function switchLogoTab(btn, tab) {
+      currentLogoTab = tab;
+      document.querySelectorAll('.img-input-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.img-input-panel').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      if (tab === 'upload') {
+        document.getElementById('logoTabUpload').classList.add('active');
+      } else {
+        document.getElementById('logoTabUrl').classList.add('active');
+      }
+    }
+
+    async function handleLogoUpload(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 5*1024*1024) { toast('Archivo muy grande', 'error'); return; }
+      var fd = new FormData();
+      fd.append('imagen', file);
+      var res = await apiUpload(fd);
+      if (res && res.exito) {
+        document.getElementById('logoPreview').style.display = 'flex';
+        document.getElementById('logoPreviewImg').src = res.url;
+        document.getElementById('logoPreviewUrl').textContent = res.url;
+        document.getElementById('previewLogo').src = res.url;
+        document.getElementById('cfgLogo').value = res.url;
+        toast('Logo subido');
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error al subir logo', 'error');
+      }
+    }
+
+    function previewLogoUrl() {
+      var url = document.getElementById('cfgLogoUrl').value.trim();
+      if (url) {
+        document.getElementById('logoPreview').style.display = 'flex';
+        document.getElementById('logoPreviewImg').src = url;
+        document.getElementById('logoPreviewUrl').textContent = url;
+        document.getElementById('previewLogo').src = url;
+        document.getElementById('cfgLogo').value = url;
+      }
+    }
+
+    function clearLogo() {
+      document.getElementById('logoPreview').style.display = 'none';
+      document.getElementById('logoPreviewImg').src = '';
+      document.getElementById('cfgLogo').value = '';
+      document.getElementById('cfgLogoUrl').value = '';
+      document.getElementById('logoFileInput').value = '';
+    }
+
+    function setupLogoDrop() {
+      var dz = document.getElementById('logoDropZone');
+      if (dz) {
+        dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.classList.add('dragover'); });
+        dz.addEventListener('dragleave', function() { dz.classList.remove('dragover'); });
+        dz.addEventListener('drop', function(e) {
+          e.preventDefault(); dz.classList.remove('dragover');
+          if (e.dataTransfer.files[0]) {
+            document.getElementById('logoFileInput').files = e.dataTransfer.files;
+            handleLogoUpload({ target: { files: e.dataTransfer.files } });
+          }
+        });
+      }
+    }
+
+    /* Save Functions */
+    async function saveDatos() {
+      var params = {
+        NOMBRE_NEGOCIO: document.getElementById('cfgNombreNegocio').value.trim(),
+        NOMBRE_RESTAURANTE: document.getElementById('cfgNombreRestaurante').value.trim(),
+        RAZON_SOCIAL: document.getElementById('cfgRazonSocial').value.trim(),
+        NIT: document.getElementById('cfgNit').value.trim(),
+        DIRECCION: document.getElementById('cfgDireccion').value.trim(),
+        TELEFONO: document.getElementById('cfgTelefono').value.trim(),
+        SUBTITULO: document.getElementById('cfgSubtitulo').value.trim(),
+        LOGO: document.getElementById('cfgLogo').value.trim()
+      };
+      var res = await apiPost('configuracion.php', { action: 'guardarMultiple', params: params });
+      if (res && res.exito) {
+        toast('Datos guardados');
+        await loadConfig();
+        applyBranding();
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error al guardar', 'error');
+      }
+    }
+
+    async function savePersonalizacion() {
+      var selectedFont = 'Inter';
+      var activeFontOption = document.querySelector('.font-option.active');
+      if (activeFontOption) {
+        var fontPreview = activeFontOption.querySelector('.font-preview');
+        if (fontPreview) selectedFont = fontPreview.textContent.trim();
+      }
+      var customFont = document.getElementById('cfgCustomFont').value.trim();
+      var finalFont = customFont || selectedFont;
+
+      var params = {
+        COLOR_PRIMARIO: document.getElementById('cfgColorPrimario').value,
+        COLOR_SECUNDARIO: document.getElementById('cfgColorSecundario').value,
+        COLOR_ACENTO: document.getElementById('cfgColorAcento').value,
+        COLOR_FONDO: document.getElementById('cfgColorFondo').value,
+        TIPOGRAFIA: finalFont,
+        LOGO: document.getElementById('cfgLogo').value.trim() || (CONFIG.LOGO || '')
+      };
+      var res = await apiPost('configuracion.php', { action: 'guardarMultiple', params: params });
+      if (res && res.exito) {
+        toast('Personalizacion guardada');
+        await loadConfig();
+        applyBranding();
+        if (customFont) loadFontIfNeeded(customFont);
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error al guardar', 'error');
+      }
+    }
+
+    async function saveDomicilioConfig() {
+      var params = {
+        VALOR_DOMICILIO: document.getElementById('cfgValorDomicilio').value,
+        AUTO_IMPRIMIR: document.getElementById('cfgAutoImprimir').value
+      };
+      var res = await apiPost('configuracion.php', { action: 'guardarMultiple', params: params });
+      if (res && res.exito) {
+        toast('Configuracion de domicilios guardada');
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error', 'error');
+      }
+    }
+
+    async function saveWhatsappConfig() {
+      var params = {
+        WHATSAPP_NUMERO: document.getElementById('cfgWhatsappNumero').value.trim(),
+        WHATSAPP_API_TOKEN: document.getElementById('cfgWhatsappApiToken').value.trim(),
+        WHATSAPP_WABA_ID: document.getElementById('cfgWhatsappWabaId').value.trim()
+      };
+      var res = await apiPost('configuracion.php', { action: 'guardarMultiple', params: params });
+      if (res && res.exito) {
+        toast('WhatsApp configurado');
+        await loadConfig();
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error', 'error');
+      }
+    }
+
+    async function testWhatsappConnection() {
+      var token = document.getElementById('cfgWhatsappApiToken').value.trim();
+      var phone = document.getElementById('cfgWhatsappNumero').value.trim();
+      if (!phone) { toast('Ingresa un numero de WhatsApp', 'error'); return; }
+      if (!token) {
+        window.open('https://wa.me/' + phone, '_blank');
+        toast('Abriendo WhatsApp Web (sin API token, modo directo)');
+        return;
+      }
+      toast('Probando conexion con WhatsApp Business API...');
+      var res = await apiPost('delivery_apps.php', {
+        action: 'testWebhook',
+        webhook_url: 'https://graph.facebook.com/v18.0/' + document.getElementById('cfgWhatsappWabaId').value.trim(),
+        api_key: token
+      });
+      if (res && res.exito) {
+        toast('Conexion exitosa');
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error de conexion', 'error');
+      }
+    }
+
+    /* Delivery Apps */
+    async function loadDeliveryApps() {
+      var data = await apiGet('delivery_apps.php');
+      if (Array.isArray(data)) deliveryApps = data;
+      else if (data && data.exito === false) console.warn('loadDeliveryApps:', data.mensaje);
+      renderDeliveryApps();
+    }
+
+    function renderDeliveryApps() {
+      var container = document.getElementById('deliveryAppsList');
+      container.innerHTML = deliveryApps.map(function(app, i) {
+        return '<div class="delivery-app-card" data-index="' + i + '">' +
+          '<div class="app-header">' +
+            '<div class="app-info">' +
+              (app.logo ? '<img src="' + esc(app.logo) + '" alt="">' : '<span>&#128661;</span>') +
+              '<div><div class="app-name">' + esc(app.nombre) + '</div>' +
+              '<div class="app-meta">Comision: ' + (app.comision || 0) + '%</div></div>' +
+            '</div>' +
+            '<div class="app-actions">' +
+              '<div class="toggle' + (app.activo == 1 ? ' on' : '') + '" onclick="toggleApp(' + i + ')"></div>' +
+              '<button class="btn btn-sm btn-danger" onclick="removeApp(' + i + ')">&#10005;</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="app-details">' +
+            '<div><div class="detail-label">Webhook URL</div><div class="detail-value">' + esc(app.webhook_url || 'No configurado') + '</div></div>' +
+            '<div><div class="detail-label">API Key</div><div class="detail-value">' + (app.api_key ? '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022' : 'No configurado') + '</div></div>' +
+          '</div>' +
+          '<div style="margin-top:8px;display:flex;gap:6px">' +
+            '<input type="text" class="form-input" style="flex:1;font-size:0.76rem" placeholder="Webhook URL" value="' + esc(app.webhook_url || '') + '" onchange="updateAppField(' + i + ',\'webhook_url\',this.value)">' +
+            '<input type="text" class="form-input" style="flex:1;font-size:0.76rem" placeholder="API Key" value="' + esc(app.api_key || '') + '" onchange="updateAppField(' + i + ',\'api_key\',this.value)">' +
+          '</div>' +
+          '<div style="margin-top:6px">' +
+            '<input type="number" class="form-input" style="width:100px;font-size:0.76rem" placeholder="% Comision" value="' + (app.comision || 0) + '" min="0" max="100" onchange="updateAppField(' + i + ',\'comision\',this.value)">' +
+            '<button class="btn btn-sm btn-outline" style="margin-left:6px" onclick="testAppWebhook(' + i + ')">&#128272; Test</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function toggleApp(i) {
+      deliveryApps[i].activo = deliveryApps[i].activo == 1 ? 0 : 1;
+      saveApp(deliveryApps[i]);
+    }
+
+    function updateAppField(i, field, value) {
+      deliveryApps[i][field] = value;
+      saveApp(deliveryApps[i]);
+    }
+
+    async function saveApp(app) {
+      // BUG 3 FIX: addDeliveryApp() now generates idApp. For existing apps,
+      // send the idApp so update works. Don't spread ...app blindly - pick known fields.
+      var data = {
+        action: 'guardar',
+        idApp: app.idApp || '',
+        nombre: app.nombre || '',
+        comision: app.comision || 0,
+        logo: app.logo || '',
+        activo: app.activo,
+        webhook_url: app.webhook_url || '',
+        api_key: app.api_key || ''
+      };
+      var res = await apiPost('delivery_apps.php', data);
+      if (res && res.exito) {
+        toast('App guardada');
+        await loadDeliveryApps();
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error', 'error');
+      }
+    }
+
+    async function removeApp(i) {
+      if (!confirm('Eliminar app ' + deliveryApps[i].nombre + '?')) return;
+      var res = await apiPost('delivery_apps.php', { action: 'eliminar', idApp: deliveryApps[i].idApp });
+      if (res && res.exito) {
+        toast('App eliminada');
+        await loadDeliveryApps();
+      }
+    }
+
+    // BUG 3 FIX: addDeliveryApp() now generates an idApp so it can be saved properly.
+    // Previously the save function spread ...app which included no idApp for new entries.
+    async function addDeliveryApp() {
+      var nombre = prompt('Nombre de la app de delivery:');
+      if (!nombre) return;
+      var comision = parseInt(prompt('Porcentaje de comision:', '20')) || 0;
+      var logo = prompt('URL del logo (opcional):', '') || '';
+      // Generate an idApp for the new app
+      var newId = generateId('APP');
+      var res = await apiPost('delivery_apps.php', {
+        action: 'guardar',
+        idApp: newId,
+        nombre: nombre,
+        comision: comision,
+        logo: logo,
+        activo: 1,
+        webhook_url: '',
+        api_key: ''
+      });
+      if (res && res.exito) {
+        toast('App agregada');
+        await loadDeliveryApps();
+      }
+    }
+
+    async function testAppWebhook(i) {
+      var app = deliveryApps[i];
+      if (!app.webhook_url) { toast('Configura el Webhook URL primero', 'error'); return; }
+      toast('Probando conexion con ' + app.nombre + '...');
+      var res = await apiPost('delivery_apps.php', {
+        action: 'testWebhook',
+        webhook_url: app.webhook_url,
+        api_key: app.api_key || ''
+      });
+      if (res && res.exito) {
+        toast(app.nombre + ': conexion exitosa');
+      } else {
+        toast(app.nombre + ': ' + (res && res.mensaje ? res.mensaje : 'Error de conexion'), 'error');
+      }
+    }
+
+    /* ===== Respuestas Rapidas ===== */
+    var respuestasRapidas = [];
+    var editingRespuestaId = null;
+    var rrActivoValue = 1;
+
+    async function loadRespuestasRapidas() {
+      var data = await apiGet('respuestas_rapidas.php');
+      if (Array.isArray(data)) respuestasRapidas = data;
+      else if (data && data.exito === false) console.warn('loadRespuestasRapidas:', data.mensaje);
+      renderRespuestasRapidas();
+    }
+
+    function renderRespuestasRapidas() {
+      var container = document.getElementById('respuestasList');
+      if (!respuestasRapidas.length) {
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.35);font-size:0.85rem">No hay respuestas rapidas. Agrega la primera.</div>';
+        return;
+      }
+      container.innerHTML = respuestasRapidas.map(function(r, i) {
+        var vars = (r.variables || '').split(',').filter(function(v){return v.trim()});
+        var varTags = vars.map(function(v) {
+          return '<code style="background:rgba(108,60,225,0.2);color:var(--color-primario);padding:2px 8px;border-radius:4px;font-size:0.65rem;margin:2px">{' + esc(v.trim()) + '}</code>';
+        }).join(' ');
+        return '<div class="card" style="padding:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.06)">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
+            '<div>' +
+              '<div style="font-size:0.92rem;font-weight:700">' + esc(r.nombre) + '</div>' +
+              '<div style="font-size:0.68rem;color:rgba(255,255,255,0.4);margin-top:2px">Orden: ' + r.orden + ' &middot; ' + (r.activo ? '<span style="color:#22c55e">Activa</span>' : '<span style="color:rgba(255,255,255,0.3)">Inactiva</span>') + '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px;align-items:center">' +
+              '<div class="toggle' + (r.activo ? ' on' : '') + '" onclick="toggleRespuesta(\'' + esc(r.id) + '\')" style="cursor:pointer"></div>' +
+              '<button class="btn btn-sm btn-outline" onclick="editRespuesta(\'' + esc(r.id) + '\')">&#9998;</button>' +
+              '<button class="btn btn-sm btn-danger" onclick="deleteRespuesta(\'' + esc(r.id) + '\')">&#10005;</button>' +
+            '</div>' +
+          '</div>' +
+          '<div style="font-size:0.82rem;color:rgba(255,255,255,0.7);white-space:pre-wrap;background:rgba(255,255,255,0.03);padding:10px;border-radius:6px">' + esc(r.mensaje) + '</div>' +
+          (varTags ? '<div style="margin-top:8px">' + varTags + '</div>' : '') +
+        '</div>';
+      }).join('');
+    }
+
+    function openRespuestaModal(id) {
+      editingRespuestaId = id || null;
+      rrActivoValue = 1;
+      document.getElementById('respuestaModal').style.display = 'flex';
+      document.getElementById('respuestaModalTitle').textContent = id ? 'Editar Respuesta Rapida' : 'Nueva Respuesta Rapida';
+      document.getElementById('rrNombre').value = '';
+      document.getElementById('rrMensaje').value = '';
+      document.getElementById('rrVariables').value = 'cliente, productos, total, domicilio, total_domicilio, canal, id_orden, negocio, telefono';
+      document.getElementById('rrOrden').value = '0';
+      document.getElementById('rrActivoToggle').className = 'toggle on';
+      document.getElementById('rrPreview').textContent = '';
+
+      if (id) {
+        var r = respuestasRapidas.find(function(x){ return x.id === id });
+        if (r) {
+          document.getElementById('rrNombre').value = r.nombre || '';
+          document.getElementById('rrMensaje').value = r.mensaje || '';
+          document.getElementById('rrVariables').value = r.variables || '';
+          document.getElementById('rrOrden').value = r.orden || '0';
+          rrActivoValue = r.activo ? 1 : 0;
+          document.getElementById('rrActivoToggle').className = 'toggle' + (r.activo ? ' on' : '');
+          updateRrPreview();
+        }
+      }
+    }
+
+    function closeRespuestaModal() {
+      document.getElementById('respuestaModal').style.display = 'none';
+      editingRespuestaId = null;
+    }
+
+    function toggleRrActivo() {
+      rrActivoValue = rrActivoValue ? 0 : 1;
+      document.getElementById('rrActivoToggle').className = 'toggle' + (rrActivoValue ? ' on' : '');
+    }
+
+    function updateRrPreview() {
+      var msg = document.getElementById('rrMensaje').value;
+      var previewData = {
+        cliente: 'Juan Perez',
+        productos: '1x Burger, 2x Papas',
+        total: '$25,000',
+        domicilio: '$5,000',
+        total_domicilio: '$30,000',
+        canal: 'WhatsApp',
+        id_orden: 'ORD-12345',
+        negocio: CONFIG.NOMBRE_NEGOCIO || 'Freakers',
+        telefono: '3105743129'
+      };
+      Object.keys(previewData).forEach(function(k) {
+        msg = msg.replace(new RegExp('\\{' + k + '\\}', 'g'), previewData[k]);
+      });
+      document.getElementById('rrPreview').textContent = msg;
+    }
+
+    document.getElementById('rrMensaje').addEventListener('input', updateRrPreview);
+
+    async function saveRespuesta() {
+      var nombre = document.getElementById('rrNombre').value.trim();
+      var mensaje = document.getElementById('rrMensaje').value.trim();
+      var variables = document.getElementById('rrVariables').value.trim();
+      var orden = parseInt(document.getElementById('rrOrden').value) || 0;
+
+      if (!nombre || !mensaje) {
+        toast('Nombre y mensaje son obligatorios', 'error');
+        return;
+      }
+
+      var data = {
+        action: 'guardar',
+        id: editingRespuestaId || '',
+        nombre: nombre,
+        mensaje: mensaje,
+        variables: variables,
+        activo: rrActivoValue,
+        orden: orden
+      };
+
+      var res = await apiPost('respuestas_rapidas.php', data);
+      if (res && res.exito) {
+        toast(editingRespuestaId ? 'Respuesta actualizada' : 'Respuesta creada');
+        closeRespuestaModal();
+        await loadRespuestasRapidas();
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error al guardar', 'error');
+      }
+    }
+
+    async function toggleRespuesta(id) {
+      var res = await apiPost('respuestas_rapidas.php', { action: 'toggle', id: id });
+      if (res && res.exito) {
+        toast(res.mensaje);
+        await loadRespuestasRapidas();
+      }
+    }
+
+    function editRespuesta(id) {
+      openRespuestaModal(id);
+    }
+
+    async function deleteRespuesta(id) {
+      if (!confirm('Eliminar esta respuesta rapida?')) return;
+      var res = await apiPost('respuestas_rapidas.php', { action: 'eliminar', id: id });
+      if (res && res.exito) {
+        toast('Respuesta eliminada');
+        await loadRespuestasRapidas();
+      }
+    }
+
+    /* Make loadConfigPage available globally for factory reset */
+    window.loadConfigPage = loadConfigPage;
+
+    initConfig();
+    loadRespuestasRapidas();
+    loadTicketConfig();
+
+    /* ===== Ticket / Factura Config ===== */
+    var ticketBlocksLocal = [];
+
+    async function loadTicketConfig() {
+      var data = await apiGet('ticket_config.php');
+      if (Array.isArray(data)) ticketBlocksLocal = data;
+      else if (data && data.exito === false) console.warn('loadTicketConfig:', data.mensaje);
+      renderTicketBlocks();
+    }
+
+    function renderTicketBlocks() {
+      var container = document.getElementById('ticketBlocksList');
+      if (!ticketBlocksLocal.length) {
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.35);font-size:0.85rem">No hay bloques de ticket. Agrega el primero.</div>';
+        return;
+      }
+      ticketBlocksLocal.sort(function(a, b) { return (a.orden || 0) - (b.orden || 0); });
+      container.innerHTML = ticketBlocksLocal.map(function(b, i) {
+        var opts = b.opciones || {};
+        var alignSel = opts.alineacion || 'centro';
+        var sizeSel = opts.tamano || 'normal';
+        return '<div class="card" style="padding:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.06);cursor:grab" draggable="true" ondragstart="dragTicketBlock(event,' + i + ')" ondragover="allowTicketDrop(event)" ondrop="dropTicketBlock(event,' + i + ')" data-idx="' + i + '">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
+            '<div style="display:flex;align-items:center;gap:10px">' +
+              '<span style="color:rgba(255,255,255,0.3);font-size:1rem;cursor:grab">&#9776;</span>' +
+              '<div>' +
+                '<div style="font-size:0.88rem;font-weight:700;color:' + (b.activo ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)') + '">' + esc(b.bloque) + '</div>' +
+                '<div style="font-size:0.66rem;color:rgba(255,255,255,0.3)">Orden: ' + (b.orden || i) + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px;align-items:center">' +
+              '<div class="toggle' + (b.activo ? ' on' : '') + '" onclick="toggleTicketBlock(' + i + ')" style="cursor:pointer"></div>' +
+              '<button class="btn btn-sm btn-danger" onclick="removeTicketBlock(' + i + ')">&#10005;</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="form-group" style="margin-bottom:6px">' +
+            '<label style="font-size:0.7rem;color:rgba(255,255,255,0.35)">Contenido</label>' +
+            '<textarea class="form-input" rows="3" style="font-size:0.78rem;resize:vertical;min-height:50px;width:100%" onchange="updateTicketBlockField(' + i + ',\'contenido\',this.value)">' + esc(b.contenido || '') + '</textarea>' +
+          '</div>' +
+          '<div style="display:flex;gap:12px;margin-top:6px">' +
+            '<div class="form-group" style="margin:0;flex:1">' +
+              '<label style="font-size:0.68rem;color:rgba(255,255,255,0.3)">Alineacion</label>' +
+              '<select class="form-input" style="width:100%;font-size:0.76rem" onchange="updateTicketBlockOpt(' + i + ',\'alineacion\',this.value)">' +
+                '<option value="centro"' + (alignSel === 'centro' ? ' selected' : '') + '>Centro</option>' +
+                '<option value="izquierda"' + (alignSel === 'izquierda' ? ' selected' : '') + '>Izquierda</option>' +
+                '<option value="derecha"' + (alignSel === 'derecha' ? ' selected' : '') + '>Derecha</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group" style="margin:0;flex:1">' +
+              '<label style="font-size:0.68rem;color:rgba(255,255,255,0.3)">Tamano</label>' +
+              '<select class="form-input" style="width:100%;font-size:0.76rem" onchange="updateTicketBlockOpt(' + i + ',\'tamano\',this.value)">' +
+                '<option value="pequeno"' + (sizeSel === 'pequeno' ? ' selected' : '') + '>Pequeno</option>' +
+                '<option value="normal"' + (sizeSel === 'normal' ? ' selected' : '') + '>Normal</option>' +
+                '<option value="grande"' + (sizeSel === 'grande' ? ' selected' : '') + '>Grande</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function toggleTicketBlock(i) {
+      ticketBlocksLocal[i].activo = ticketBlocksLocal[i].activo ? 0 : 1;
+      renderTicketBlocks();
+    }
+
+    function updateTicketBlockField(i, field, value) {
+      ticketBlocksLocal[i][field] = value;
+    }
+
+    function updateTicketBlockOpt(i, optKey, value) {
+      if (!ticketBlocksLocal[i].opciones) ticketBlocksLocal[i].opciones = {};
+      ticketBlocksLocal[i].opciones[optKey] = value;
+    }
+
+    function addTicketBlock() {
+      var nombre = prompt('Nombre del bloque (ej: PROMO, HEADER, FOOTER):');;
+      if (!nombre) return;
+      var maxOrden = ticketBlocksLocal.reduce(function(m, b) { return Math.max(m, b.orden || 0); }, 0);
+      ticketBlocksLocal.push({
+        id: generateId('TKT'),
+        bloque: nombre.toUpperCase(),
+        activo: 1,
+        contenido: '',
+        orden: maxOrden + 1,
+        opciones: { alineacion: 'centro', tamano: 'normal' }
+      });
+      renderTicketBlocks();
+    }
+
+    function removeTicketBlock(i) {
+      if (!confirm('Eliminar bloque ' + ticketBlocksLocal[i].bloque + '?')) return;
+      ticketBlocksLocal.splice(i, 1);
+      renderTicketBlocks();
+    }
+
+    /* Drag and drop reordering */
+    var dragTicketIdx = null;
+    function dragTicketBlock(e, i) { dragTicketIdx = i; e.dataTransfer.effectAllowed = 'move'; }
+    function allowTicketDrop(e) { e.preventDefault(); }
+    function dropTicketBlock(e, targetI) {
+      e.preventDefault();
+      if (dragTicketIdx === null || dragTicketIdx === targetI) return;
+      var moved = ticketBlocksLocal.splice(dragTicketIdx, 1)[0];
+      ticketBlocksLocal.splice(targetI, 0, moved);
+      // Re-number orden
+      ticketBlocksLocal.forEach(function(b, idx) { b.orden = idx; });
+      renderTicketBlocks();
+      dragTicketIdx = null;
+    }
+
+    async function saveTicketConfig() {
+      // Re-number orden before saving
+      ticketBlocksLocal.forEach(function(b, idx) { b.orden = idx; });
+      var res = await apiPost('ticket_config.php', { action: 'guardar', blocks: ticketBlocksLocal });
+      if (res && res.exito) {
+        toast('Configuracion de ticket guardada');
+        // Also update the global ticketBlocks in app.js
+        if (typeof loadTicketConfig === 'function') await loadTicketConfig();
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error al guardar', 'error');
+      }
+    }
+
+    function previewTicket() {
+      // Build a sample preview using current config and sample data
+      var sampleOrder = {
+        idOrden: 'ORD-DEMO',
+        tipo: 'DOMICILIO',
+        fecha: new Date().toISOString(),
+        cliente_nombre: 'Juan Perez',
+        cliente_telefono: '3101234567',
+        cliente_direccion: 'Cra 50 #10-20',
+        canal: 'WhatsApp',
+        idMesa: '-',
+        numero: '-',
+        mesero: 'Freakers',
+        domicilio: 5000,
+        subtotal: 45000,
+        total: 50000,
+        comentario: 'Sin cebolla',
+        items: [
+          { cantidad: 2, producto: 'HamFreaks Clasica', precioUnitario: 15000, totalLinea: 30000 },
+          { cantidad: 1, producto: 'Papas Cheddar', precioUnitario: 10000, totalLinea: 10000 },
+          { cantidad: 1, producto: 'Cerveza Aguila', precioUnitario: 5000, totalLinea: 5000 }
+        ]
+      };
+      // Use the global printTicket with a mock - or just build preview inline
+      var vars = {
+        logo: CONFIG.LOGO || '',
+        negocio: CONFIG.NOMBRE_NEGOCIO || 'Freakers',
+        razon_social: CONFIG.RAZON_SOCIAL || '',
+        nit: CONFIG.NIT || '',
+        direccion: CONFIG.DIRECCION || '',
+        telefono: CONFIG.TELEFONO || '',
+        id_orden: sampleOrder.idOrden,
+        fecha: formatFecha(sampleOrder.fecha),
+        tipo: 'Domicilio',
+        mesa: '-',
+        mesero: 'Freakers',
+        cliente_nombre: sampleOrder.cliente_nombre,
+        cliente_telefono: sampleOrder.cliente_telefono,
+        cliente_direccion: sampleOrder.cliente_direccion,
+        canal: sampleOrder.canal,
+        subtotal: formatCOP(sampleOrder.subtotal),
+        domicilio: formatCOP(sampleOrder.domicilio),
+        total: formatCOP(sampleOrder.total),
+        comentario: sampleOrder.comentario,
+        info_cliente: 'Cliente: ' + sampleOrder.cliente_nombre + '\nTel: ' + sampleOrder.cliente_telefono + '\nDir: ' + sampleOrder.cliente_direccion + '\nCanal: ' + sampleOrder.canal
+      };
+
+      var itemRows = sampleOrder.items.map(function(it) {
+        return '<tr><td style="text-align:left;padding:2px 0;font-size:0.78rem">' + it.cantidad + '</td>' +
+          '<td style="text-align:left;padding:2px 4px;font-size:0.78rem">' + esc(it.producto) + '</td>' +
+          '<td style="text-align:right;padding:2px 0;font-size:0.78rem">' + formatCOP(it.totalLinea) + '</td></tr>';
+      }).join('');
+      vars.items_tabla = '<table style="width:100%;border-collapse:collapse">' +
+        '<thead><tr style="border-bottom:1px dashed #555">' +
+          '<th style="text-align:left;font-size:0.72rem;padding:2px 0">Cant</th>' +
+          '<th style="text-align:left;font-size:0.72rem;padding:2px 4px">Producto</th>' +
+          '<th style="text-align:right;font-size:0.72rem;padding:2px 0">Sub</th>' +
+        '</tr></thead><tbody>' + itemRows + '</tbody></table>';
+
+      var previewHTML = '';
+      var sorted = ticketBlocksLocal.filter(function(b){ return b.activo; }).sort(function(a,b){ return (a.orden||0)-(b.orden||0); });
+      sorted.forEach(function(block) {
+        var content = block.contenido || '';
+        Object.keys(vars).forEach(function(key) {
+          content = content.replace(new RegExp('\\\\{' + key + '\\\\}', 'g'), vars[key] || '');
+        });
+        var opts = block.opciones || {};
+        var alignCSS = (opts.alineacion || 'centro') === 'centro' ? 'center' : ((opts.alineacion || '') === 'derecha' ? 'right' : 'left');
+        var size = opts.tamano === 'grande' ? '1.1rem' : (opts.tamano === 'pequeno' ? '0.72rem' : '0.85rem');
+        if (block.bloque === 'HEADER' && content.indexOf('{logo}') >= 0) {
+          content = content.replace('{logo}', '<img src="' + (vars.logo || '') + '" style="max-width:90px;max-height:70px;display:block;margin:0 auto">');
+        }
+        content = content.replace(/\n/g, '<br>');
+        previewHTML += '<div style="text-align:' + alignCSS + ';font-size:' + size + ';margin:5px 0;line-height:1.3">' + content + '</div>';
+      });
+
+      // Show preview in a modal-like overlay
+      var overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center';
+      overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
+      var box = document.createElement('div');
+      box.style.cssText = 'width:320px;max-height:80vh;overflow-y:auto;background:#fff;color:#000;border-radius:12px;padding:20px;font-family:Courier New,monospace;font-size:0.82rem;line-height:1.4';
+      box.innerHTML = previewHTML + '<div style="text-align:center;margin-top:12px;font-size:0.65rem;color:#999">Vista previa del ticket</div>';
+      var closeBtn = document.createElement('button');
+      closeBtn.textContent = 'Cerrar';
+      closeBtn.style.cssText = 'display:block;margin:10px auto 0;padding:6px 18px;background:#333;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.78rem';
+      closeBtn.onclick = function() { overlay.remove(); };
+      box.appendChild(closeBtn);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+    }
+  </script>
+</body>
+</html>

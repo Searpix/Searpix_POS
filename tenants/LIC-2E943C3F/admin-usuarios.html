@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Usuarios - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><img src="https://placehold.co/40x40/6C3CE1/fff?text=F" alt="Logo"><h1>Freakers POS</h1></div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">☰</button>
+          <h2>👥 Administrar Usuarios</h2>
+          <button class="btn btn-primary" onclick="openUserModal()">➕ Nuevo Usuario</button>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+
+          <table class="data-table" id="usersTable">
+          <thead><tr><th>Usuario</th><th>Nombre</th><th>Apellido</th><th>Rol</th><th>Estado</th><th>Contraseña</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="modalUser">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="userModalTitle">➕ Nuevo Usuario</h3>
+        <button class="modal-close" onclick="closeModal('modalUser')">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Usuario</label>
+        <input type="text" id="userUsuario" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" id="userNombre" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label>Apellido</label>
+        <input type="text" id="userApellido" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Rol</label>
+        <select id="userRol" class="form-input">
+          <option value="ADMIN">ADMIN</option>
+          <option value="MESERO">MESERO</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="userEstado" class="form-input">
+          <option value="ACTIVO">ACTIVO</option>
+          <option value="INACTIVO">INACTIVO</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="text" id="userClave" class="form-input" placeholder="Dejar vacío para no cambiar">
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="guardarUsuario()">Guardar</button>
+    </div>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    initPage('usuarios', true);
+
+    let usuarios = [];
+
+    async function loadUsers() {
+      const data = await apiGet('usuarios.php');
+      usuarios = Array.isArray(data) ? data : [];
+      renderTable();
+    }
+
+    function renderTable() {
+      let html = '';
+      usuarios.forEach(u => {
+        const rolBadge = u.rol === 'ADMIN' ? 'badge-primary' : 'badge-info';
+        const estadoBadge = u.estado === 'ACTIVO' ? 'badge-success' : 'badge-danger';
+        const claveDisplay = u.contrasena ? '••••••' : '—';
+        html += `<tr>
+          <td style="font-weight:600;">${esc(u.usuario)}</td>
+          <td>${esc(u.nombre)}</td>
+          <td>${esc(u.apellido || '')}</td>
+          <td><span class="badge ${rolBadge}">${esc(u.rol)}</span></td>
+          <td><span class="badge ${estadoBadge}">${esc(u.estado)}</span></td>
+          <td style="font-size:0.75rem;color:rgba(255,255,255,0.4);">${esc(claveDisplay)}</td>
+          <td>
+            <button class="btn btn-sm btn-outline" onclick="editUser('${u.id}')">✏️</button>
+          </td>
+        </tr>`;
+      });
+      document.querySelector('#usersTable tbody').innerHTML = html;
+    }
+
+    function openUserModal(user = null) {
+      document.getElementById('userModalTitle').textContent = user ? '✏️ Editar Usuario' : '➕ Nuevo Usuario';
+      document.getElementById('userUsuario').value = user ? user.usuario : '';
+      document.getElementById('userNombre').value = user ? user.nombre : '';
+      document.getElementById('userApellido').value = user ? (user.apellido || '') : '';
+      document.getElementById('userRol').value = user ? user.rol : 'MESERO';
+      document.getElementById('userEstado').value = user ? user.estado : 'ACTIVO';
+      document.getElementById('userClave').value = user ? (user.contrasena || '') : '';
+      document.getElementById('modalUser').dataset.id = user ? user.id : '';
+      openModal('modalUser');
+    }
+
+    function editUser(id) {
+      const u = usuarios.find(x => x.id === id);
+      if (u) openUserModal(u);
+    }
+
+    async function guardarUsuario() {
+      const id = document.getElementById('modalUser').dataset.id;
+      const usuario = document.getElementById('userUsuario').value.trim();
+      const nombre = document.getElementById('userNombre').value.trim();
+      const apellido = document.getElementById('userApellido').value.trim();
+      const rol = document.getElementById('userRol').value;
+      const estado = document.getElementById('userEstado').value;
+      const contrasena = document.getElementById('userClave').value;
+      if (!usuario || !nombre) { toast('Llena usuario y nombre', 'error'); return; }
+      if (!id && !contrasena) { toast('Contraseña requerida para nuevo usuario', 'error'); return; }
+      const res = await apiPost('usuarios.php', { id, usuario, nombre, apellido, rol, estado, contrasena });
+      if (res?.exito) {
+        toast('Usuario guardado');
+        closeModal('modalUser');
+        loadUsers();
+      } else { toast(res?.mensaje || 'Error', 'error'); }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

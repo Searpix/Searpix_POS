@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="" alt="Logo">
+        <h1>Freakers</h1>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+    <!-- Main -->
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger">&#9776;</button>
+          <h2>&#127828; Productos</h2>
+          <button class="btn btn-primary" onclick="openProductoModal()">+ Nuevo Producto</button>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <!-- Filters -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <select id="filterCat" class="form-input" style="width:auto;min-width:180px" onchange="loadProductos()">
+          <option value="">Todas las categorias</option>
+        </select>
+        <input type="text" id="filterSearch" class="form-input" placeholder="Buscar producto..." style="width:220px" oninput="loadProductos()">
+        <select id="filterEstado" class="form-input" style="width:auto" onchange="loadProductos()">
+          <option value="">Todos</option>
+          <option value="ACTIVO">Activo</option>
+          <option value="INACTIVO">Inactivo</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div style="overflow-x:auto">
+          <div class="table-responsive">
+
+            <table class="data-table" id="tablaProductos">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Categoria</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Producto -->
+  <div class="modal-overlay" id="modalProducto">
+    <div class="modal-box" style="max-width:560px">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nuevo Producto</h3>
+        <button class="modal-close" onclick="closeModal('modalProducto')">&times;</button>
+      </div>
+      <form id="formProducto" onsubmit="saveProducto(event)">
+        <input type="hidden" id="prodId" value="">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" id="prodNombre" class="form-input" required placeholder="Nombre del producto">
+        </div>
+        <div class="form-group">
+          <label>Categoria *</label>
+          <select id="prodCategoria" class="form-input" required>
+            <option value="">Seleccionar categoria...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio (COP) *</label>
+          <input type="number" id="prodPrecio" class="form-input" required min="1" step="1" placeholder="0">
+        </div>
+
+        <!-- Image Section: Tabs for File Upload / URL / Default -->
+        <div class="form-group">
+          <label>Imagen del Producto</label>
+          <div class="img-input-tabs">
+            <button type="button" class="img-input-tab active" onclick="switchImgTab(this,'upload')">&#128228; Subir Archivo</button>
+            <button type="button" class="img-input-tab" onclick="switchImgTab(this,'url')">&#128279; URL</button>
+          </div>
+
+          <!-- Tab: File Upload -->
+          <div class="img-input-panel active" id="imgTabUpload">
+            <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileImagen').click()">
+              <div class="upload-icon">&#128228;</div>
+              <div class="upload-text">Arrastra una imagen aqui o <strong>haz clic para seleccionar</strong><br><small>JPG, PNG, GIF, WebP, SVG - Maximo 5MB</small></div>
+            </div>
+            <input type="file" id="fileImagen" accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml" style="display:none" onchange="handleFileSelect(event)">
+            <div id="uploadProgress" style="display:none;margin-top:8px">
+              <div style="background:rgba(255,255,255,0.08);border-radius:6px;height:6px;overflow:hidden">
+                <div id="uploadBar" style="background:var(--color-primario);height:100%;width:0%;transition:width 0.3s"></div>
+              </div>
+              <span style="font-size:0.72rem;color:rgba(255,255,255,0.5)">Subiendo...</span>
+            </div>
+          </div>
+
+          <!-- Tab: URL -->
+          <div class="img-input-panel" id="imgTabUrl">
+            <input type="url" id="prodImagenUrl" class="form-input" placeholder="https://ejemplo.com/imagen.jpg" oninput="previewUrlImage()">
+          </div>
+
+          <!-- Preview -->
+          <div class="img-preview-row" id="imgPreview" style="display:none">
+            <img id="imgPreviewSrc" src="" alt="Preview">
+            <span class="img-url" id="imgPreviewUrl"></span>
+            <button type="button" class="btn btn-sm btn-outline" onclick="clearImage()">&#10005;</button>
+          </div>
+
+          <!-- Default Image Button -->
+          <div style="margin-top:8px">
+            <button type="button" class="btn btn-sm btn-outline" onclick="setDefaultImage()">&#127912; Usar imagen por defecto</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Estado</label>
+          <select id="prodEstado" class="form-input">
+            <option value="ACTIVO">Activo</option>
+            <option value="INACTIVO">Inactivo</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modalProducto')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btnGuardar">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    let categorias = [];
+    let productos = [];
+    let currentImgTab = 'upload';
+    let currentImgValue = '';
+
+    async function initProductos() {
+      await initPage('productos', true);
+      await loadCategorias();
+      await loadProductos();
+    }
+
+    async function loadCategorias() {
+      const data = await apiGet('categorias.php');
+      if (Array.isArray(data)) categorias = data;
+      else if (data && data.exito === false) console.warn('loadCategorias:', data.mensaje);
+      const sel = document.getElementById('prodCategoria');
+      const fil = document.getElementById('filterCat');
+      sel.innerHTML = '<option value="">Seleccionar categoria...</option>';
+      fil.innerHTML = '<option value="">Todas las categorias</option>';
+      categorias.forEach(c => {
+        sel.innerHTML += '<option value="' + c.idCategoria + '">' + esc(c.nombre) + '</option>';
+        fil.innerHTML += '<option value="' + c.idCategoria + '">' + esc(c.nombre) + '</option>';
+      });
+    }
+
+    async function loadProductos() {
+      const params = {};
+      const fc = document.getElementById('filterCat').value;
+      const fs = document.getElementById('filterSearch').value;
+      const fe = document.getElementById('filterEstado').value;
+      if (fc) params.idCategoria = fc;
+      if (fs) params.buscar = fs;
+      if (fe) params.estado = fe;
+      const data = await apiGet('productos.php', params);
+      if (Array.isArray(data)) {
+        productos = data;
+        renderProductos();
+      } else if (data && data.exito === false) {
+        console.warn('loadProductos:', data.mensaje);
+      }
+    }
+
+    function renderProductos() {
+      const tbody = document.querySelector('#tablaProductos tbody');
+      tbody.innerHTML = '';
+      productos.forEach(p => {
+        const catName = categorias.find(c => c.idCategoria == p.idCategoria)?.nombre || '-';
+        tbody.innerHTML += '<tr>' +
+          '<td><img src="' + getProductImage(p.imagen) + '" style="width:40px;height:40px;border-radius:8px;object-fit:cover"></td>' +
+          '<td><strong>' + esc(p.nombre) + '</strong></td>' +
+          '<td>' + esc(catName) + '</td>' +
+          '<td>' + formatCOP(p.precio) + '</td>' +
+          '<td><span class="badge badge-' + (p.estado === 'ACTIVO' ? 'success' : 'danger') + '">' + esc(p.estado) + '</span></td>' +
+          '<td><button class="btn btn-sm btn-outline" onclick="editProducto(\'' + p.idProducto + '\')">&#9998;&#65039;</button> <button class="btn btn-sm btn-danger" onclick="deleteProducto(\'' + p.idProducto + '\')">&#128465;</button></td>' +
+          '</tr>';
+      });
+      if (!productos.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.3)">No hay productos</td></tr>';
+      }
+    }
+
+    function openProductoModal(producto) {
+      document.getElementById('formProducto').reset();
+      document.getElementById('prodId').value = '';
+      document.getElementById('modalTitle').textContent = 'Nuevo Producto';
+      currentImgValue = '';
+      currentImgTab = 'upload';
+      // Reset img tab to upload
+      document.querySelectorAll('.img-input-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.img-input-panel').forEach(function(p) { p.classList.remove('active'); });
+      var firstTab = document.querySelector('.img-input-tab');
+      if (firstTab) firstTab.classList.add('active');
+      document.getElementById('imgTabUpload').classList.add('active');
+      clearImage();
+      if (producto) {
+        document.getElementById('prodId').value = producto.idProducto;
+        document.getElementById('prodNombre').value = producto.nombre;
+        document.getElementById('prodCategoria').value = producto.idCategoria;
+        document.getElementById('prodPrecio').value = producto.precio;
+        document.getElementById('prodEstado').value = producto.estado;
+        document.getElementById('modalTitle').textContent = 'Editar Producto';
+        if (producto.imagen) {
+          currentImgValue = producto.imagen;
+          document.getElementById('imgPreview').style.display = 'flex';
+          document.getElementById('imgPreviewSrc').src = producto.imagen;
+          document.getElementById('imgPreviewUrl').textContent = producto.imagen;
+          if (producto.imagen.startsWith('http')) {
+            // Switch to URL tab
+            document.querySelectorAll('.img-input-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.img-input-panel').forEach(function(p) { p.classList.remove('active'); });
+            var tabs = document.querySelectorAll('.img-input-tab');
+            if (tabs.length > 1) tabs[1].classList.add('active');
+            document.getElementById('imgTabUrl').classList.add('active');
+            document.getElementById('prodImagenUrl').value = producto.imagen;
+          }
+        }
+      }
+      openModal('modalProducto');
+    }
+
+    function editProducto(id) {
+      const p = productos.find(x => x.idProducto == id);
+      if (p) openProductoModal(p);
+    }
+
+    // BUG 1 FIX: idCategoria uses string IDs (CAT-xxx), do NOT parseInt.
+    // parseInt("CAT-BURGERS") = NaN which is falsy, triggering the "no category" error.
+    // Also fix precio to use parseFloat instead of parseInt.
+    async function saveProducto(e) {
+      e.preventDefault();
+      var id = document.getElementById('prodId').value;
+      var idCategoriaVal = document.getElementById('prodCategoria').value;
+      var nombreVal = document.getElementById('prodNombre').value.trim();
+      var precioVal = parseFloat(document.getElementById('prodPrecio').value);
+      var estadoVal = document.getElementById('prodEstado').value;
+
+      var data = {
+        idCategoria: idCategoriaVal,  // String like "CAT-BURGERS" - NO parseInt
+        nombre: nombreVal,
+        precio: precioVal,  // Use parseFloat for decimal support
+        imagen: currentImgValue || '',
+        estado: estadoVal
+      };
+
+      if (!data.nombre) { toast('El nombre es obligatorio', 'error'); return; }
+      // FIX: idCategoria is a string like "CAT-xxx" - just check it is not empty
+      if (!data.idCategoria || data.idCategoria === '') { toast('Selecciona una categoria (si no hay, crea una primero en Categorias)', 'error'); return; }
+      if (!data.precio || data.precio <= 0 || isNaN(data.precio)) { toast('El precio debe ser mayor a 0', 'error'); return; }
+
+      // Send idProducto as string for updates (also no parseInt)
+      if (id) data.idProducto = id;
+
+      var res = await apiPost('productos.php', data);
+      if (res?.exito) {
+        toast(id ? 'Producto actualizado' : 'Producto creado');
+        closeModal('modalProducto');
+        await loadProductos();
+      } else {
+        toast(res?.mensaje || 'Error al guardar', 'error');
+      }
+    }
+
+    async function deleteProducto(id) {
+      if (!confirm('Eliminar este producto?')) return;
+      const res = await apiPost('productos.php', { action: 'eliminar', idProducto: id });
+      if (res?.exito) {
+        toast('Producto eliminado');
+        await loadProductos();
+      } else {
+        toast(res?.mensaje || 'Error al eliminar', 'error');
+      }
+    }
+
+    /* Image Tab Switching - FIX: pass element explicitly */
+    function switchImgTab(btn, tab) {
+      currentImgTab = tab;
+      document.querySelectorAll('.img-input-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.img-input-panel').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      if (tab === 'upload') {
+        document.getElementById('imgTabUpload').classList.add('active');
+      } else {
+        document.getElementById('imgTabUrl').classList.add('active');
+      }
+    }
+
+    /* File Upload with Drag & Drop */
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) uploadFile(file);
+    }
+
+    async function uploadFile(file) {
+      if (file.size > 5 * 1024 * 1024) { toast('Archivo muy grande (maximo 5MB)', 'error'); return; }
+      const allowed = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+      if (!allowed.includes(file.type)) { toast('Tipo no permitido (JPG, PNG, GIF, WebP, SVG)', 'error'); return; }
+      const fd = new FormData();
+      fd.append('imagen', file);
+      document.getElementById('uploadProgress').style.display = 'block';
+      document.getElementById('uploadBar').style.width = '30%';
+      const res = await apiUpload(fd);
+      document.getElementById('uploadBar').style.width = '100%';
+      setTimeout(function() { document.getElementById('uploadProgress').style.display = 'none'; }, 500);
+      if (res?.exito) {
+        currentImgValue = res.url;
+        showImagePreview(res.url);
+        toast('Imagen subida');
+      } else {
+        toast(res?.mensaje || 'Error al subir imagen', 'error');
+      }
+    }
+
+    function previewUrlImage() {
+      const url = document.getElementById('prodImagenUrl').value.trim();
+      if (url) {
+        currentImgValue = url;
+        showImagePreview(url);
+      } else {
+        currentImgValue = '';
+        document.getElementById('imgPreview').style.display = 'none';
+      }
+    }
+
+    function showImagePreview(url) {
+      document.getElementById('imgPreview').style.display = 'flex';
+      document.getElementById('imgPreviewSrc').src = url;
+      document.getElementById('imgPreviewUrl').textContent = url;
+    }
+
+    function clearImage() {
+      currentImgValue = '';
+      document.getElementById('imgPreview').style.display = 'none';
+      document.getElementById('imgPreviewSrc').src = '';
+      document.getElementById('imgPreviewUrl').textContent = '';
+      document.getElementById('prodImagenUrl').value = '';
+      document.getElementById('fileImagen').value = '';
+    }
+
+    function setDefaultImage() {
+      currentImgValue = DEFAULT_PRODUCT_IMG;
+      showImagePreview(DEFAULT_PRODUCT_IMG);
+      toast('Imagen por defecto seleccionada');
+    }
+
+    /* Drag & Drop Setup */
+    document.addEventListener('DOMContentLoaded', function() {
+      var dz = document.getElementById('dropZone');
+      if (dz) {
+        dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.classList.add('dragover'); });
+        dz.addEventListener('dragleave', function() { dz.classList.remove('dragover'); });
+        dz.addEventListener('drop', function(e) {
+          e.preventDefault();
+          dz.classList.remove('dragover');
+          if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+        });
+      }
+    });
+
+    initProductos();
+  </script>
+</body>
+</html>

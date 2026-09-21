@@ -1,0 +1,24 @@
+# ============================================================
+#  Comprobantes de pago — PROTEGIDOS
+#  Estos archivos contienen datos sensibles de los clientes.
+#  Se bloquea TODO acceso web directo: no se pueden abrir ni
+#  descargar escribiendo la URL, ni listar la carpeta.
+#  Solo el administrador autenticado puede verlos a traves de
+#  /api/comprobante.php (que los lee desde el sistema de archivos).
+# ============================================================
+
+Options -Indexes
+
+# Nada es accesible por web directamente
+Require all denied
+
+# Y por si el motor PHP estuviera activo, se desactiva la ejecucion
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>

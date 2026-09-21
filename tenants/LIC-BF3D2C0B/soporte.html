@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soporte - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><img src="https://placehold.co/40x40/6C3CE1/fff?text=F" alt="Logo"><h1>Freakers POS</h1></div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">&#9776;</button>
+          <h2>Soporte</h2>
+          <button class="btn btn-primary" onclick="openTicketModal()">+ Nuevo ticket</button>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="data-table" id="ticketsTable">
+            <thead><tr><th>Asunto</th><th>Categoría</th><th>Prioridad</th><th>Estado</th><th>Mensajes</th><th>Actualizado</th><th>Acciones</th></tr></thead>
+            <tbody id="ticketsBody"><tr><td colspan="7" style="text-align:center;padding:22px">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Nuevo ticket -->
+  <div class="modal-overlay" id="modalNuevo">
+    <div class="modal-box">
+      <div class="modal-header"><h3>Nuevo ticket</h3><button class="modal-close" onclick="closeModal('modalNuevo')">&times;</button></div>
+      <div class="form-group"><label>Asunto</label><input type="text" id="tkAsunto" class="form-input" required></div>
+      <div class="form-group"><label>Categoría</label>
+        <select id="tkCategoria" class="form-input"><option>GENERAL</option><option>FACTURACION</option><option>TECNICO</option><option>LICENCIA</option></select>
+      </div>
+      <div class="form-group"><label>Prioridad</label>
+        <select id="tkPrioridad" class="form-input"><option>BAJA</option><option selected>NORMAL</option><option>ALTA</option><option>URGENTE</option></select>
+      </div>
+      <div class="form-group"><label>Mensaje</label><textarea id="tkMensaje" class="form-input" rows="4" required></textarea></div>
+      <button class="btn btn-primary btn-block" onclick="crearTicket()">Crear ticket</button>
+    </div>
+  </div>
+
+  <!-- Ver ticket -->
+  <div class="modal-overlay" id="modalVer">
+    <div class="modal-box">
+      <div class="modal-header"><h3 id="verTitulo">Ticket</h3><button class="modal-close" onclick="closeModal('modalVer')">&times;</button></div>
+      <div id="verMeta" style="font-size:.8rem;opacity:.7;margin-bottom:8px"></div>
+      <div id="verHilo" style="max-height:300px;overflow-y:auto;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px;margin-bottom:12px"></div>
+      <div class="form-group"><label>Responder</label><textarea id="verMensaje" class="form-input" rows="3"></textarea></div>
+      <input type="hidden" id="verId">
+      <button class="btn btn-primary btn-block" onclick="responderTicket()">Enviar respuesta</button>
+    </div>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+    function openTicketModal(){document.getElementById('modalNuevo').classList.add('active');}
+    function apiTk(body){return App.api('tickets.php', body);}
+    function loadTickets(){
+      apiTk({action:'listar'}).then(function(d){
+        var b=document.getElementById('ticketsBody');
+        if(!d.exito||!d.tickets||!d.tickets.length){b.innerHTML='<tr><td colspan=\"7\" style=\"text-align:center;padding:22px\">Sin tickets</td></tr>';return;}
+        b.innerHTML=d.tickets.map(function(t){
+          return '<tr><td>'+esc(t.asunto)+'</td><td>'+esc(t.categoria)+'</td><td>'+esc(t.prioridad)+'</td><td>'+esc(t.estado)+'</td><td>'+esc(t.mensajes)+'</td><td>'+esc(t.actualizado)+'</td>'+
+            '<td><button class=\"btn btn-sm btn-primary\" onclick=\"verTicket(\''+esc(t.idTicket)+'\')\">Ver</button></td></tr>';
+        }).join('');
+      });
+    }
+    function crearTicket(){
+      var asunto=document.getElementById('tkAsunto').value.trim();
+      var mensaje=document.getElementById('tkMensaje').value.trim();
+      if(!asunto||!mensaje){App.toast('Asunto y mensaje son obligatorios','error');return;}
+      apiTk({action:'crear',asunto:asunto,mensaje:mensaje,categoria:document.getElementById('tkCategoria').value,prioridad:document.getElementById('tkPrioridad').value}).then(function(d){
+        if(d.exito){App.toast('Ticket creado');closeModal('modalNuevo');document.getElementById('tkAsunto').value='';document.getElementById('tkMensaje').value='';loadTickets();}
+        else App.toast(d.mensaje||'Error','error');
+      });
+    }
+    function verTicket(id){
+      apiTk({action:'ver',idTicket:id}).then(function(d){
+        if(!d.exito){App.toast(d.mensaje||'Error','error');return;}
+        var t=d.ticket||{};
+        document.getElementById('verId').value=t.idTicket||id;
+        document.getElementById('verTitulo').textContent=t.asunto||'Ticket';
+        document.getElementById('verMeta').textContent='Categoría: '+(t.categoria||'-')+' · Prioridad: '+(t.prioridad||'-')+' · Estado: '+(t.estado||'-');
+        var h=document.getElementById('verHilo');var m=d.mensajes||[];
+        h.innerHTML=m.length?m.map(function(x){var admin=(x.autorTipo||'').toUpperCase()==='ADMIN';return '<div style=\"text-align:'+(admin?'right':'left')+';margin-bottom:8px\"><div style=\"display:inline-block;max-width:78%;text-align:left;background:'+(admin?'rgba(108,60,225,.2)':'rgba(255,255,255,.06)')+';padding:7px 11px;border-radius:9px\"><div style=\"font-size:.65rem;opacity:.6\">'+(admin?'Soporte':'Tú')+' · '+esc(x.creado)+'</div><div style=\"white-space:pre-wrap\">'+esc(x.mensaje)+'</div></div></div>';}).join(''):'<div style=\"text-align:center;opacity:.6\">Sin mensajes</div>';
+        document.getElementById('verMensaje').value='';
+        document.getElementById('modalVer').classList.add('active');
+        h.scrollTop=h.scrollHeight;
+      });
+    }
+    function responderTicket(){
+      var id=document.getElementById('verId').value;var mensaje=document.getElementById('verMensaje').value.trim();
+      if(!mensaje){App.toast('Escribe un mensaje','error');return;}
+      apiTk({action:'responder',idTicket:id,mensaje:mensaje}).then(function(d){if(d.exito){App.toast('Enviado');verTicket(id);loadTickets();}else App.toast(d.mensaje||'Error','error');});
+    }
+    document.addEventListener('DOMContentLoaded',function(){
+      if(window.App&&App.init){App.init('soporte');}
+      loadTickets();
+      setInterval(function(){ if(!document.hidden) loadTickets(); }, 5000);
+    });
+  </script>
+</body>
+</html>

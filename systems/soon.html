@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comandix · Sistemas</title>
+<style>
+  :root{--primary:#6C3CE1;--primary-2:#8B5CF6;--accent:#E94560;}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+  body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:radial-gradient(1200px 600px at 20% -10%,rgba(108,60,225,.35),transparent),
+               radial-gradient(1000px 500px at 100% 120%,rgba(233,69,96,.28),transparent),#070a12;color:#e8ebf5}
+  .card{max-width:560px;width:100%;text-align:center;background:linear-gradient(160deg,#141b2d,#0d1220);
+    border:1px solid rgba(255,255,255,.08);border-radius:26px;padding:48px 38px;
+    box-shadow:0 50px 90px -30px rgba(0,0,0,.85)}
+  h1{font-size:1.9rem;font-weight:900;margin-bottom:12px;
+    background:linear-gradient(135deg,var(--primary-2),var(--accent));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  p{color:#a7afc7;font-size:1rem;line-height:1.6;margin-bottom:28px}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:13px 24px;border-radius:13px;
+    text-decoration:none;color:#fff;background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 14px 30px -12px rgba(108,60,225,.7);transition:.2s}
+  .btn:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Comandix · Sistemas</h1>
+    <p>Zona de sistemas de Comandix. Aquí se alojará el acceso a los sistemas operativos del punto de venta.</p>
+    <a class="btn" href="../views/login.html">Ir al portal de licencias</a>
+  </div>
+</body>
+</html>

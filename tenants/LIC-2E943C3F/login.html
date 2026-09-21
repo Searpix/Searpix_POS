@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesion — Freakers POS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0B0F19;
+            --surface: #111827;
+            --surface2: #1e2540;
+            --primary: #6C3CE1;
+            --accent: #E94560;
+            --green: #4ade80;
+            --text: #e0e0e0;
+            --muted: rgba(255,255,255,0.45);
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Background */
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image:
+                radial-gradient(circle at 25% 35%, rgba(108,60,225,0.08) 0%, transparent 55%),
+                radial-gradient(circle at 75% 65%, rgba(233,69,96,0.06) 0%, transparent 55%);
+        }
+
+        .particles {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+        .particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: rgba(108,60,225,0.3);
+            border-radius: 50%;
+            animation: float var(--dur, 15s) var(--delay, 0s) ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
+            50% { transform: translateY(-120px) translateX(30px); opacity: 0.6; }
+        }
+
+        /* Card */
+        .card {
+            position: relative; z-index: 1;
+            width: min(480px, 92vw);
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid rgba(108,60,225,0.15);
+            box-shadow:
+                0 0 60px rgba(108,60,225,0.08),
+                0 25px 80px rgba(0,0,0,0.5);
+            padding: 44px 38px 36px;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+
+        .card-logo {
+            width: 80px; height: 80px;
+            border-radius: 20px;
+            margin: 0 auto 18px;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, rgba(108,60,225,0.2), rgba(233,69,96,0.15));
+            border: 1px solid rgba(108,60,225,0.2);
+            overflow: hidden;
+            opacity: 0;
+        }
+        .card-logo img {
+            width: 56px; height: 56px;
+            object-fit: contain;
+        }
+
+        .card-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+            opacity: 0;
+        }
+
+        .card-sub {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-bottom: 30px;
+            opacity: 0;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 16px;
+            opacity: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 7px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(108,60,225,0.18);
+            background: var(--surface2);
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-input::placeholder { color: rgba(255,255,255,0.18); }
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108,60,225,0.12);
+        }
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(108,60,225,0.3);
+            opacity: 0;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(108,60,225,0.45);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
+
+        /* License warning bar */
+        .license-warning {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: rgba(233,69,96,0.08);
+            border: 1px solid rgba(233,69,96,0.18);
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--accent);
+        }
+        .license-warning a {
+            color: var(--accent);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 99999;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: none;
+            opacity: 0;
+        }
+        .toast.show { display: flex; align-items: center; gap: 10px; }
+        .toast.error {
+            background: rgba(233,69,96,0.1);
+            border: 1px solid rgba(233,69,96,0.2);
+            color: var(--accent);
+        }
+        .toast.license {
+            background: rgba(108,60,225,0.1);
+            border: 1px solid rgba(108,60,225,0.2);
+            color: var(--primary);
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed; inset: 0;
+            background: rgba(11,15,25,0.92);
+            z-index: 10;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .loading-overlay.active { display: flex; }
+        .loading-overlay .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(108,60,225,0.15);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .loading-overlay .text {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .card { padding: 32px 22px 26px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-grid"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Loading overlay (shown during license check) -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="text" id="loading-text">Verificando licencia...</div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"><span id="toast-icon"></span> <span id="toast-msg"></span></div>
+
+    <!-- Login Card -->
+    <div class="card" id="card">
+        <div class="card-logo" id="card-logo">
+            <img src="https://i.ibb.co/39bHjfNc/freakers-png.png" alt="Logo" id="logo-img">
+        </div>
+        <h1 class="card-title" id="card-title">FREAKERS</h1>
+        <p class="card-sub" id="card-sub">Burgers & Fast Food</p>
+
+        <div class="form-group">
+            <label class="form-label">Usuario</label>
+            <input
+                type="text"
+                class="form-input"
+                id="input-user"
+                placeholder="Tu usuario"
+                autocomplete="username"
+            >
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Contrasena</label>
+            <input
+                type="password"
+                class="form-input"
+                id="input-pass"
+                placeholder="••••••••"
+                autocomplete="current-password"
+            >
+        </div>
+
+        <button class="btn btn-primary" id="btn-login" onclick="handleLogin()">
+            <span>⚡</span> Iniciar Sesion
+        </button>
+
+        <!-- License warning (shown when license issue detected) -->
+        <div class="license-warning" id="license-warning">
+            <span id="license-warning-msg"></span>
+        </div>
+    </div>
+
+    <script src="assets/js/licencia.js"></script>
+    <script>
+        /* ============================================
+           Login Page — Modified for License v6
+           Flow: Check license → if OK → allow login
+           If not → redirect to licencia-expirada
+           ============================================ */
+
+        // ===== Particles =====
+        (function() {
+            const c = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.setProperty('--dur', (10 + Math.random() * 15) + 's');
+                p.style.setProperty('--delay', (Math.random() * 5) + 's');
+                c.appendChild(p);
+            }
+        })();
+
+        // ===== License Pre-Check on Page Load =====
+        (async function initLicenseCheck() {
+            const overlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+            overlay.classList.add('active');
+            loadingText.textContent = 'Verificando licencia...';
+
+            try {
+                const canProceed = await LicenciaModule.preLoginCheck();
+                
+                if (!canProceed) {
+                    // preLoginCheck already redirected — but in case it didn't:
+                    return;
+                }
+
+                // License OK — proceed with normal login flow
+                overlay.classList.remove('active');
+                initLoginUI();
+
+            } catch (err) {
+                // If license check fails completely, still allow login attempt
+                // (the auth.php will also check and block if needed)
+                console.warn('[Login] License pre-check failed, proceeding:', err);
+                overlay.classList.remove('active');
+                initLoginUI();
+            }
+        })();
+
+        // ===== Login UI Init =====
+        function initLoginUI() {
+            // Focus on username
+            document.getElementById('input-user').focus();
+
+            // Enter key handler
+            document.getElementById('input-pass').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') handleLogin();
+            });
+            document.getElementById('input-user').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') document.getElementById('input-pass').focus();
+            });
+
+            // Check if redirected from license page (show success message)
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('activated') === '1') {
+                showToast('license', 'Licencia activada. Puedes iniciar sesion.');
+            }
+
+            // Check for existing session
+            const sesion = getSesion();
+            if (sesion && sesion.exp > Date.now() / 1000) {
+                // Already logged in — redirect
+                const role = sesion.rol;
+                if (role === 'ADMIN') {
+                    window.location.href = 'dashboard';
+                } else {
+                    window.location.href = 'panel';
+                }
+                return;
+            }
+
+            // GSAP entrance
+            runEntranceAnimation();
+        }
+
+        // ===== Login Handler =====
+        async function handleLogin() {
+            const user = document.getElementById('input-user').value.trim();
+            const pass = document.getElementById('input-pass').value.trim();
+            const btn = document.getElementById('btn-login');
+
+            if (!user || !pass) {
+                showToast('error', 'Completa ambos campos.');
+                gsap.fromTo('.card', { x: -6 }, { x: 0, duration: 0.4, ease: 'elastic.out(1,0.3)' });
+                return;
+            }
+
+            // Disable UI
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Verificando...';
+            document.getElementById('input-user').disabled = true;
+            document.getElementById('input-pass').disabled = true;
+
+            try {
+                const resp = await fetch('api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario: user,
+                        clave: pass
+                    })
+                });
+
+                const data = await resp.json();
+
+                // Check for license error from auth.php
+                if (data.codigo_error && data.codigo_error.startsWith('LICENCIA_')) {
+                    const estado = data.codigo_error.replace('LICENCIA_', '');
+                    
+                    // Show warning on login page
+                    const warning = document.getElementById('license-warning');
+                    const warningMsg = document.getElementById('license-warning-msg');
+                    warningMsg.innerHTML = data.mensaje +
+                        '<br><a href="licencia-expirada?estado=' + estado + '">Ir a pantalla de licencia →</a>';
+                    warning.style.display = 'block';
+                    gsap.fromTo(warning, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3 });
+
+                    // Re-enable form
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>⚡</span> Iniciar Sesion';
+                    document.getElementById('input-user').disabled = false;
+                    document.getElementById('input-pass').disabled = false;
+                    return;
+                }
+
+                if (data.exito) {
+                    // Save session
+                    const sesion = {
+                        idUsuario: data.idUsuario,
+                        usuario: data.usuario,
+                        nombre: data.nombre,
+                        rol: data.rol,
+                        token: data.token,
+                        licencia_estado: data.licencia_estado || 'ACTIVA',
+                        exp: Math.floor(Date.now() / 1000) + 86400 * 7
+                    };
+                    localStorage.setItem('pos_sesion', btoa(JSON.stringify(sesion)));
+
+                    // Success animation
+                    gsap.to('#card', {
+                        scale: 0.95,
+                        opacity: 0,
+                        duration: 0.4,
+                        ease: 'power2.in',
+                        onComplete: () => {
+                            // Redirect by role
+                            if (data.rol === 'ADMIN') {
+                                window.location.href = 'dashboard';
+                            } else {
+                                window.location.href = 'panel';
+                            }
+                        }
+                    });
+
+                } else {
+                    showToast('error', data.mensaje || 'Error al iniciar sesion.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>⚡</span> Iniciar Sesion';
+                    document.getElementById('input-user').disabled = false;
+                    document.getElementById('input-pass').disabled = false;
+                    document.getElementById('input-pass').value = '';
+                    document.getElementById('input-pass').focus();
+
+                    gsap.fromTo('.card', { x: -6 }, { x: 0, duration: 0.5, ease: 'elastic.out(1,0.3)' });
+                }
+            } catch (err) {
+                showToast('error', 'Error de conexion. Intenta de nuevo.');
+                btn.disabled = false;
+                btn.innerHTML = '<span>⚡</span> Iniciar Sesion';
+                document.getElementById('input-user').disabled = false;
+                document.getElementById('input-pass').disabled = false;
+            }
+        }
+
+        // ===== Toast =====
+        function showToast(type, msg) {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            document.getElementById('toast-icon').textContent = type === 'error' ? '❌' : '🔒';
+            document.getElementById('toast-msg').textContent = msg;
+            gsap.fromTo(toast, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
+            setTimeout(() => {
+                gsap.to(toast, { opacity: 0, y: -10, duration: 0.3, onComplete: () => toast.className = 'toast' });
+            }, 3500);
+        }
+
+        // ===== Session helper =====
+        function getSesion() {
+            try {
+                const raw = localStorage.getItem('pos_sesion');
+                if (!raw) return null;
+                return JSON.parse(atob(raw));
+            } catch (e) { return null; }
+        }
+
+        // ===== GSAP Entrance =====
+        function runEntranceAnimation() {
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+            tl.to('#card', { opacity: 1, y: 0, scale: 1, duration: 0.5 })
+              .to('#card-logo', { opacity: 1, duration: 0.35 }, '-=0.15')
+              .to('#card-title', { opacity: 1, duration: 0.3 }, '-=0.1')
+              .to('#card-sub', { opacity: 1, duration: 0.3 }, '-=0.05')
+              .to('.form-group', { opacity: 1, duration: 0.3, stagger: 0.08 }, '-=0.05')
+              .to('#btn-login', { opacity: 1, duration: 0.3 });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Mesero - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    .mesa-section{margin-bottom:22px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
+    .mesa-section-header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:16px 16px 0 0;margin-bottom:0;position:relative;overflow:hidden}
+    .mesa-section-header::before{content:'';position:absolute;inset:0;opacity:0.08;z-index:0}
+    .mesa-section.BARRA .mesa-section-header{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05));border-bottom:2px solid rgba(245,158,11,0.3)}
+    .mesa-section.BARRA .mesa-section-header::before{background:linear-gradient(90deg,#f59e0b,transparent)}
+    .mesa-section.VIP .mesa-section-header{background:linear-gradient(135deg,rgba(168,85,247,0.2),rgba(168,85,247,0.06));border-bottom:2px solid rgba(168,85,247,0.3)}
+    .mesa-section.VIP .mesa-section-header::before{background:linear-gradient(90deg,#a855f7,transparent)}
+    .mesa-section.MESAS .mesa-section-header{background:linear-gradient(135deg,rgba(108,60,225,0.15),rgba(108,60,225,0.05));border-bottom:2px solid rgba(108,60,225,0.3)}
+    .mesa-section.MESAS .mesa-section-header::before{background:linear-gradient(90deg,#6c3ce1,transparent)}
+    .mesa-section-header .sec-icon{font-size:1.5rem;z-index:1;filter:drop-shadow(0 0 6px rgba(255,255,255,0.2))}
+    .mesa-section-header .sec-label{font-size:1.05rem;font-weight:900;color:rgba(255,255,255,0.92);letter-spacing:0.14em;text-transform:uppercase;z-index:1}
+    .mesa-section.BARRA .sec-icon{color:#f59e0b}
+    .mesa-section.VIP .sec-icon{color:#a855f7}
+    .mesa-section.MESAS .sec-icon{color:#6c3ce1}
+    .mesa-section-header .sec-count{font-size:0.78rem;font-weight:700;margin-left:auto;z-index:1;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.65)}
+    .mesa-section .mesa-grid{padding:14px 10px;background:rgba(0,0,0,0.08);border-radius:0 0 16px 16px}
+    .cat-tab-img{width:22px;height:22px;border-radius:5px;object-fit:cover;margin-right:6px;vertical-align:middle}
+    /* Panel Mesero - Mobile Responsive */
+    @media (max-width: 768px) {
+      .mesa-section-header { padding: 10px 12px; gap: 8px; }
+      .mesa-section-header .sec-icon { font-size: 1.2rem; }
+      .mesa-section-header .sec-label { font-size: 0.82rem; letter-spacing: 0.08em; }
+      .mesa-section .mesa-grid { padding: 8px 6px; }
+    }
+    @media (max-width: 480px) {
+      .mesa-section-header { padding: 8px 10px; gap: 6px; }
+      .mesa-section-header .sec-label { font-size: 0.72rem; }
+      .mesa-section-header .sec-count { font-size: 0.65rem; padding: 2px 8px; }
+      .mesa-section .mesa-grid { padding: 6px 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="" alt="Logo">
+        <h1>Freakers</h1>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger">&#9776;</button>
+          <h2>&#128722; Panel Mesero</h2>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <!-- SECCION 1: Selector de Mesas -->
+      <div id="mesaSelector">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-size:1.1rem;font-weight:700;color:rgba(255,255,255,0.8);">Selecciona una Mesa</h3>
+        </div>
+        <div id="mesaSections"></div>
+      </div>
+
+      <!-- SECCION 2: POS (aparece al seleccionar mesa) -->
+      <div id="posSection" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button class="btn btn-outline btn-sm" onclick="volverMesas()">&#8592; Volver a Mesas</button>
+            <h3 id="posMesaTitulo" style="font-size:1.1rem;font-weight:700;color:#fff;"></h3>
+          </div>
+        </div>
+
+        <div class="pos-grid">
+          <!-- LADO IZQUIERDO: Menu -->
+          <div class="pos-menu">
+            <!-- Tabs de categorias -->
+            <div class="cat-tabs" id="catTabs"></div>
+            <!-- Grid de productos -->
+            <div class="product-grid" id="productGrid"></div>
+          </div>
+
+          <!-- LADO DERECHO: Cuenta / Carrito -->
+          <div class="pos-cart">
+            <div class="pos-cart-header">
+              <span id="cartTitulo">&#128203; Cuenta</span>
+              <button class="btn btn-sm btn-outline" onclick="vaciarCarrito()">Vaciar</button>
+            </div>
+            <div class="pos-cart-items" id="cartItems">
+              <div style="text-align:center;color:rgba(255,255,255,0.25);padding:40px 0;font-size:0.82rem;">Agrega productos<br>a la cuenta</div>
+            </div>
+            <div class="pos-cart-footer">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.6);">Total</span>
+                <span id="cartTotal" style="font-size:1.3rem;font-weight:900;color:var(--color-acento);">$0</span>
+              </div>
+              <div style="display:flex;gap:6px;margin-bottom:8px;">
+                <input type="text" id="egresoInput" class="form-input" placeholder="Egreso (opc)" style="font-size:0.76rem;">
+                <input type="text" id="comentarioInput" class="form-input" placeholder="Comentario" style="font-size:0.76rem;">
+              </div>
+              <div id="cartAcciones"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Cobrar -->
+      <div class="modal-overlay" id="modalCobrar">
+        <div class="modal-box">
+          <div class="modal-header">
+            <h3>Cobrar</h3>
+            <button class="modal-close" onclick="closeModal('modalCobrar')">&#10005;</button>
+          </div>
+          <div style="text-align:center;padding:10px 0;">
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:4px;">Total a cobrar</div>
+            <div id="cobrarTotal" style="font-size:2rem;font-weight:900;color:var(--color-acento);margin-bottom:18px;">$0</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+            <button class="btn btn-success" onclick="cobrar('EFECTIVO')">&#128181; Efectivo</button>
+            <button class="btn btn-info" onclick="cobrar('NEQUI')">&#128241; Nequi</button>
+            <button class="btn btn-primary" onclick="cobrar('QR')">&#128247; QR</button>
+            <button class="btn btn-warning" onclick="cobrar('DATAFONO')">&#128179; Datafono</button>
+          </div>
+          <button class="btn btn-outline" style="width:100%;" onclick="closeModal('modalCobrar')">Cancelar</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    var mesas = [];
+    var productos = [];
+    var categorias = [];
+    var carrito = [];
+    var mesaSeleccionada = null;
+    var ordenActual = null;
+    var catActiva = '';
+
+    async function initMesero() {
+      await initPage('panel');
+      await cargarDatos();
+    }
+
+    async function cargarDatos() {
+      var results = await Promise.all([
+        apiGet('mesas.php'),
+        apiGet('productos.php', { action: 'menu' }),
+        apiGet('categorias.php')
+      ]);
+      mesas = Array.isArray(results[0]) ? results[0] : [];
+      var pData = results[1];
+      productos = (pData && pData.productos) ? pData.productos : (Array.isArray(pData) ? pData : []);
+      categorias = (pData && pData.categorias) ? pData.categorias : (Array.isArray(results[2]) ? results[2] : []);
+      renderMesaSections();
+    }
+
+    /* ====== MESAS (classified by clase) ====== */
+    /* CHANGE: Reorder to VIP first, then BARRA, then MESAS */
+    var claseOrder = ['VIP', 'BARRA', 'MESAS'];
+    var claseConfig = {
+      BARRA: { icon: '&#129380;', label: 'BARRA' },
+      VIP:    { icon: '&#128081;', label: 'VIP' },
+      MESAS:  { icon: '&#129364;', label: 'MESAS' }
+    };
+
+    function renderMesaSections() {
+      var container = document.getElementById('mesaSections');
+      var html = '';
+      claseOrder.forEach(function(clase) {
+        var claseMesas = mesas.filter(function(m) { return (m.clase || 'MESAS') === clase; });
+        if (!claseMesas.length) return;
+        var cfg = claseConfig[clase];
+        var libresCount = claseMesas.filter(function(m) { return m.estado === 'LIBRE'; }).length;
+        html += '<div class="mesa-section ' + clase + '">';
+        html += '<div class="mesa-section-header">';
+        html += '<span class="sec-icon">' + cfg.icon + '</span>';
+        html += '<span class="sec-label">' + cfg.label + '</span>';
+        html += '<span class="sec-count">' + libresCount + '/' + claseMesas.length + ' libres</span>';
+        html += '</div>';
+        html += '<div class="mesa-grid">';
+        claseMesas.forEach(function(m) {
+          var cls = m.estado === 'LIBRE' ? 'mesa-libre' : 'mesa-ocupada';
+          var total = m.total ? formatCOP(m.total) : '';
+          html += '<div class="mesa-card ' + cls + '" onclick="seleccionarMesa(\'' + esc(m.idMesa) + '\')">' +
+            '<div class="mesa-num">' + esc(m.numero) + '</div>' +
+            '<div class="mesa-status">' + esc(m.estado) + '</div>' +
+            '<div class="mesa-cap">Cap: ' + m.capacidad + '</div>' +
+            (total ? '<div class="mesa-total">' + total + '</div>' : '') +
+            '</div>';
+        });
+        html += '</div></div>';
+      });
+      container.innerHTML = html;
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo('.mesa-section', { y: 25, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: 'power2.out' });
+        gsap.fromTo('.mesa-card', { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, stagger: 0.03, ease: 'back.out(1.5)', delay: 0.3 });
+      }
+    }
+
+    async function seleccionarMesa(idMesa) {
+      mesaSeleccionada = idMesa;
+      ordenActual = null;
+      carrito = [];
+      catActiva = categorias.length > 0 ? categorias[0].idCategoria : '';
+
+      // Buscar orden activa
+      var ord = await apiGet('ordenes.php', { action: 'mesa', idMesa: idMesa });
+      if (ord && ord.idOrden) {
+        ordenActual = ord;
+        if (ord.items && ord.items.length) {
+          carrito = ord.items.map(function(d) {
+            return {
+              idProducto: d.idProducto,
+              nombre: d.producto || d.nombre,
+              precio: parseFloat(d.precioUnitario || d.precio),
+              cantidad: parseInt(d.cantidad)
+            };
+          });
+        }
+      }
+
+      var mesaLabel = 'Mesa ' + (mesas.find(function(m) { return m.idMesa === idMesa; })?.numero || idMesa);
+      document.getElementById('posMesaTitulo').textContent = mesaLabel;
+      document.getElementById('cartTitulo').innerHTML = '&#128203; ' + esc(mesaLabel);
+
+      // Mostrar POS, ocultar selector
+      document.getElementById('mesaSelector').style.display = 'none';
+      document.getElementById('posSection').style.display = 'block';
+
+      renderCatTabs();
+      renderProductGrid();
+      renderCarrito();
+
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo('#posSection', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
+      }
+    }
+
+    function volverMesas() {
+      document.getElementById('posSection').style.display = 'none';
+      document.getElementById('mesaSelector').style.display = 'block';
+      carrito = [];
+      ordenActual = null;
+      mesaSeleccionada = null;
+      cargarDatos();
+    }
+
+    /* ====== CATEGORIAS (tabs with images) ====== */
+    function renderCatTabs() {
+      var html = '';
+      html += '<button class="cat-tab' + (catActiva === '' ? ' active' : '') + '" onclick="filtrarCat(\'\', this)">Todos</button>';
+      categorias.forEach(function(c) {
+        var catImg = c.imagen ? '<img src="' + esc(c.imagen) + '" class="cat-tab-img" alt="">' : '';
+        html += '<button class="cat-tab' + (catActiva === c.idCategoria ? ' active' : '') + '" onclick="filtrarCat(\'' + esc(c.idCategoria) + '\', this)">' + catImg + esc(c.nombre) + '</button>';
+      });
+      document.getElementById('catTabs').innerHTML = html;
+    }
+
+    function filtrarCat(catId, btn) {
+      catActiva = catId;
+      document.querySelectorAll('.cat-tab').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderProductGrid();
+    }
+
+    /* ====== PRODUCTOS (grid con precios) ====== */
+    function renderProductGrid() {
+      var filtered = catActiva === '' ? productos : productos.filter(function(p) { return p.idCategoria === catActiva; });
+      var html = '';
+      filtered.forEach(function(p) {
+        var cls = p.estado === 'INACTIVO' ? ' inactive' : '';
+        var img = getProductImage(p.imagen);
+        html += '<div class="product-card' + cls + '" onclick="agregarAlCarrito(\'' + esc(p.idProducto) + '\')">' +
+          '<img src="' + img + '" alt="' + esc(p.nombre) + '">' +
+          '<div class="prod-name">' + esc(p.nombre) + '</div>' +
+          '<div class="prod-price">' + formatCOP(p.precio) + '</div>' +
+          '</div>';
+      });
+      if (!filtered.length) {
+        html = '<div style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.25);padding:40px 0;">Sin productos en esta categoria</div>';
+      }
+      document.getElementById('productGrid').innerHTML = html;
+    }
+
+    /* ====== CARRITO / CUENTA ====== */
+    function agregarAlCarrito(idProd) {
+      var p = productos.find(function(x) { return x.idProducto === idProd; });
+      if (!p || p.estado === 'INACTIVO') return;
+      var existing = carrito.find(function(x) { return x.idProducto === idProd; });
+      if (existing) {
+        existing.cantidad++;
+      } else {
+        carrito.push({ idProducto: p.idProducto, nombre: p.nombre, precio: p.precio, cantidad: 1 });
+      }
+      renderCarrito();
+      if (typeof gsap !== 'undefined') {
+        var lastItem = document.querySelector('.pos-cart-item:last-child');
+        if (lastItem) gsap.from(lastItem, { x: 20, opacity: 0, duration: 0.2, ease: 'power2.out' });
+      }
+    }
+
+    function quitarDelCarrito(idx) {
+      carrito.splice(idx, 1);
+      renderCarrito();
+    }
+
+    function cambiarCantidad(idx, delta) {
+      carrito[idx].cantidad += delta;
+      if (carrito[idx].cantidad <= 0) carrito.splice(idx, 1);
+      renderCarrito();
+    }
+
+    function vaciarCarrito() {
+      if (!confirm('Vaciar la cuenta?')) return;
+      carrito = [];
+      renderCarrito();
+    }
+
+    function totalCarrito() {
+      return carrito.reduce(function(s, i) { return s + i.precio * i.cantidad; }, 0);
+    }
+
+    function renderCarrito() {
+      var container = document.getElementById('cartItems');
+      if (!carrito.length) {
+        container.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.25);padding:40px 0;font-size:0.82rem;">Agrega productos<br>a la cuenta</div>';
+        document.getElementById('cartTotal').textContent = '$0';
+        document.getElementById('cartAcciones').innerHTML = '';
+        return;
+      }
+      var html = '';
+      carrito.forEach(function(item, idx) {
+        var sub = item.precio * item.cantidad;
+        html += '<div class="pos-cart-item">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:0.82rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(item.nombre) + '</div>' +
+            '<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:2px;">' + formatCOP(item.precio) + ' x ' + item.cantidad + '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' +
+            '<button onclick="cambiarCantidad(' + idx + ',-1)" style="background:rgba(255,255,255,0.08);border:none;color:#fff;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:700;">&#8722;</button>' +
+            '<span style="font-weight:700;min-width:20px;text-align:center;font-size:0.85rem;">' + item.cantidad + '</span>' +
+            '<button onclick="cambiarCantidad(' + idx + ',1)" style="background:rgba(255,255,255,0.08);border:none;color:#fff;width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:700;">+</button>' +
+          '</div>' +
+          '<div style="font-size:0.85rem;font-weight:800;color:var(--color-acento);min-width:65px;text-align:right;flex-shrink:0;">' + formatCOP(sub) + '</div>' +
+          '<button onclick="quitarDelCarrito(' + idx + ')" style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:0.85rem;padding:2px 4px;flex-shrink:0;">&#10005;</button>' +
+          '</div>';
+      });
+      container.innerHTML = html;
+      document.getElementById('cartTotal').textContent = formatCOP(totalCarrito());
+
+      // Botones de accion
+      var acciones = '';
+      if (mesaSeleccionada && ordenActual) {
+        acciones += '<button class="btn btn-primary" style="width:100%;" onclick="agregarAOrden()">&#10133; Agregar a Orden</button>';
+        acciones += '<button class="btn btn-acento" style="width:100%;margin-top:6px;" onclick="abrirCobrar()">&#128179; Cobrar</button>';
+      } else if (mesaSeleccionada) {
+        acciones += '<button class="btn btn-primary" style="width:100%;" onclick="crearOrden()">&#10024; Crear Orden</button>';
+      }
+      document.getElementById('cartAcciones').innerHTML = acciones;
+    }
+
+    /* ====== ACCIONES DE ORDEN ====== */
+    async function crearOrden() {
+      if (!mesaSeleccionada || !carrito.length) return;
+      var btn = document.querySelector('#cartAcciones .btn-primary');
+      if (btn) { btn.disabled = true; btn.textContent = 'Creando...'; }
+      var total = totalCarrito();
+      var egreso = parseFloat(document.getElementById('egresoInput').value) || 0;
+      var comentario = document.getElementById('comentarioInput').value.trim();
+      var items = carrito.map(function(i) {
+        return { idProducto: i.idProducto, producto: i.nombre, precioUnitario: i.precio, cantidad: i.cantidad };
+      });
+      try {
+        var res = await apiPost('ordenes.php', {
+          action: 'crear',
+          idMesa: mesaSeleccionada,
+          items: items,
+          total: total,
+          descuento: 0,
+          egreso: egreso,
+          comentario: comentario
+        });
+        if (res && res.exito) {
+          toast('Orden creada exitosamente!');
+          ordenActual = { idOrden: res.idOrden };
+          renderCarrito();
+        } else {
+          toast((res && res.mensaje) ? res.mensaje : 'Error desconocido creando orden', 'error');
+        }
+      } catch (err) {
+        toast('Error de conexion al crear orden', 'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '&#10024; Crear Orden'; }
+      }
+    }
+
+    async function agregarAOrden() {
+      if (!ordenActual || !ordenActual.idOrden || !carrito.length) return;
+      var btn = document.querySelector('#cartAcciones .btn-primary');
+      if (btn) { btn.disabled = true; btn.textContent = 'Agregando...'; }
+      var egreso = parseFloat(document.getElementById('egresoInput').value) || 0;
+      var comentario = document.getElementById('comentarioInput').value.trim();
+      var items = carrito.map(function(i) {
+        return { idProducto: i.idProducto, producto: i.nombre, precioUnitario: i.precio, cantidad: i.cantidad };
+      });
+      try {
+        var res = await apiPost('ordenes.php', {
+          action: 'agregar',
+          idOrden: ordenActual.idOrden,
+          items: items,
+          egreso: egreso,
+          comentario: comentario
+        });
+        if (res && res.exito) {
+          toast('Productos agregados a la orden');
+          renderCarrito();
+        } else {
+          toast(res && res.mensaje ? res.mensaje : 'Error al agregar', 'error');
+        }
+      } catch (err) {
+        toast('Error de conexion', 'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '&#10133; Agregar a Orden'; }
+      }
+    }
+
+    function abrirCobrar() {
+      document.getElementById('cobrarTotal').textContent = formatCOP(totalCarrito());
+      openModal('modalCobrar');
+    }
+
+    async function cobrar(metodo) {
+      if (!mesaSeleccionada) return;
+      var idOrden = ordenActual && ordenActual.idOrden;
+      if (!idOrden) {
+        var ord = await apiGet('ordenes.php', { action: 'mesa', idMesa: mesaSeleccionada });
+        if (ord && ord.idOrden) idOrden = ord.idOrden;
+      }
+      if (!idOrden) {
+        toast('No se encontro orden activa para cobrar', 'error');
+        return;
+      }
+      var res = await apiPost('ordenes.php', {
+        action: 'cobrar',
+        idOrden: idOrden,
+        metodo: metodo,
+        idUsuario: SESION.idUsuario
+      });
+      if (res && res.exito) {
+        toast('Cobro exitoso via ' + metodo + '!');
+        closeModal('modalCobrar');
+        volverMesas();
+      } else {
+        toast(res && res.mensaje ? res.mensaje : 'Error al cobrar', 'error');
+      }
+    }
+
+    /* ====== ESC para volver ====== */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (document.getElementById('modalCobrar').classList.contains('show')) {
+          closeModal('modalCobrar');
+        } else if (document.getElementById('posSection').style.display === 'block') {
+          volverMesas();
+        }
+      }
+    });
+
+    initMesero();
+  </script>
+</body>
+</html>

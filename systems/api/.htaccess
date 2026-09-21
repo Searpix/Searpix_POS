@@ -1,0 +1,15 @@
+Options -Indexes
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+<FilesMatch "^.*$">
+Require all denied
+</FilesMatch>
+<FilesMatch "^(auth|licencia|mesas|categorias|productos|ordenes|pagos|usuarios|movimientos|configuracion|delivery_apps|notificaciones|dashboard|upload|factory_reset|ticket_config|respuestas_rapidas|tickets)\.php$">
+Require all granted
+</FilesMatch>
+<FilesMatch "^(setup|fix_fk_constraint)\.php$">
+Require all granted
+</FilesMatch>

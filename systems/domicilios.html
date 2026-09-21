@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domicilios - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    .dom-pos-layout{display:grid;grid-template-columns:1fr;gap:16px;min-height:0}
+    @media(min-width:1024px){.dom-pos-layout{grid-template-columns:1fr 400px}}
+    .dom-pos-left{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .dom-pos-right{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .cat-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+    .cat-tab{padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.6);font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
+    .cat-tab:hover{background:rgba(108,60,225,0.2);color:#fff}
+    .cat-tab.active{background:var(--color-primario);color:#fff;border-color:var(--color-primario)}
+    .cat-tab-img{width:22px;height:22px;border-radius:5px;object-fit:cover}
+    .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-height:min(55vh,460px);overflow-y:auto;padding:4px}
+    @media(max-width:1023px){.prod-grid{max-height:45vh;grid-template-columns:repeat(auto-fill,minmax(105px,1fr))}}
+    .prod-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:all .2s;text-align:center}
+    .prod-card:hover{background:rgba(108,60,225,0.2);border-color:var(--color-primario);transform:translateY(-2px)}
+    .prod-card img{width:54px;height:54px;border-radius:10px;object-fit:cover}
+    .prod-card .prod-name{font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.85);line-height:1.2}
+    .prod-card .prod-price{font-size:0.72rem;color:var(--color-acento);font-weight:700}
+    .carrito-box{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+    .carrito-title{font-size:0.95rem;font-weight:700;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px}
+    .carrito-items{max-height:min(28vh,240px);overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+    @media(max-width:1023px){.carrito-items{max-height:35vh}}
+    .carrito-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05)}
+    .carrito-item .ci-name{flex:1;font-size:0.78rem;color:rgba(255,255,255,0.8);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .carrito-item .ci-qty{display:flex;align-items:center;gap:4px;flex-shrink:0}
+    .carrito-item .ci-qty button{width:24px;height:24px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);color:#fff;font-size:0.76rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .carrito-item .ci-qty span{font-size:0.82rem;font-weight:700;min-width:20px;text-align:center}
+    .carrito-item .ci-price{font-size:0.76rem;font-weight:600;color:var(--color-acento);flex-shrink:0}
+    .carrito-item .ci-del{width:22px;height:22px;border-radius:6px;border:none;background:rgba(233,69,96,0.2);color:var(--color-acento);font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .carrito-totals{display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)}
+    .carrito-total-row{display:flex;justify-content:space-between;font-size:0.82rem;color:rgba(255,255,255,0.6)}
+    .carrito-total-row span:last-child{font-weight:600;color:rgba(255,255,255,0.85)}
+    .carrito-total-row.total-final{font-size:1rem;color:var(--color-acento);font-weight:800}
+    .carrito-total-row.total-final span:last-child{color:var(--color-acento)}
+    .dom-fee-input{display:flex;align-items:center;gap:8px}
+    .dom-fee-input label{font-size:0.78rem;color:rgba(255,255,255,0.5);min-width:62px}
+    .dom-fee-input input{flex:1}
+    .carrito-actions{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+    .dom-card{background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;transition:all .25s}
+    .dom-card:hover{background:rgba(108,60,225,0.08);border-color:rgba(108,60,225,0.25)}
+    .dom-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .dom-card-app{display:flex;align-items:center;gap:8px}
+    .dom-card-app img{width:22px;height:22px;border-radius:5px}
+    .dom-card-app span{font-size:0.82rem;font-weight:600;color:rgba(255,255,255,0.7)}
+    .dom-card-time{font-size:0.72rem;color:rgba(255,255,255,0.35)}
+    .dom-card-client{font-size:0.78rem;color:rgba(255,255,255,0.6)}
+    .dom-card-addr{font-size:0.72rem;color:rgba(255,255,255,0.4)}
+    .dom-card-items{font-size:0.76rem;color:rgba(255,255,255,0.5);margin-top:6px}
+    .dom-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:6px}
+    .dom-card-total{font-size:0.95rem;font-weight:800;color:var(--color-acento)}
+    .dom-card-comision{font-size:0.7rem;color:rgba(255,255,255,0.35)}
+    .dom-card-neto{font-size:0.76rem;color:#4ade80;font-weight:600}
+
+    /* ---- MODAL OVERLAY for Domicilio Creator ---- */
+    .dom-creator-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:900;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+    .dom-creator-overlay.show{display:flex}
+    .dom-creator-box{background:var(--color-secundario);border:1px solid rgba(255,255,255,0.1);border-radius:20px;width:94%;max-width:900px;max-height:92vh;overflow-y:auto;padding:24px;position:relative}
+    .dom-creator-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:8px;border:none;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:5}
+    .dom-creator-close:hover{background:rgba(233,69,96,0.2);color:var(--color-acento)}
+    .dom-creator-title{font-size:1.15rem;font-weight:900;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .dom-creator-body{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    @media(max-width:768px){.dom-creator-body{grid-template-columns:1fr}}
+    .dom-creator-left{display:flex;flex-direction:column;gap:10px;min-width:0}
+    .dom-creator-right{display:flex;flex-direction:column;gap:10px;min-width:0}
+
+    /* ---- Detail Overlay ---- */
+    .dom-detail-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999;display:none;align-items:center;justify-content:center}
+    .dom-detail-overlay.show{display:flex}
+    .dom-detail-box{background:var(--color-secundario);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:24px;width:90%;max-width:550px;max-height:85vh;overflow-y:auto}
+    .dom-detail-title{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:14px}
+    .dom-detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.82rem}
+    .dom-detail-row .label{color:rgba(255,255,255,0.5)}
+    .dom-detail-row .value{color:rgba(255,255,255,0.9);font-weight:600}
+    .dom-detail-items{margin:10px 0}
+    .dom-detail-item{display:flex;justify-content:space-between;font-size:0.78rem;padding:4px 0;color:rgba(255,255,255,0.6)}
+    .dom-detail-actions{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+    .enviar-msg-section{background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px}
+    .enviar-msg-section .rr-pick-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+    .enviar-msg-section .rr-pick-row select{flex:1;min-width:140px}
+    .enviar-msg-section .rr-pick-row button{flex-shrink:0}
+    .enviar-msg-section textarea{width:100%;resize:vertical;min-height:70px;font-size:0.85rem}
+
+    /* ---- Responsive Channel Tabs ---- */
+    .dom-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+    @media(max-width:600px){.dom-tabs{gap:4px}.dom-tab{font-size:0.72rem;padding:6px 10px}}
+    /* ---- Extra Mobile Fixes ---- */
+    @media(max-width:480px){
+      .prod-grid{grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:6px;max-height:40vh}
+      .prod-card img{width:36px;height:36px}
+      .prod-card .prod-name{font-size:0.68rem}
+      .prod-card .prod-price{font-size:0.66rem}
+      .dom-card{padding:10px}
+      .dom-card-header{flex-wrap:wrap;gap:4px}
+      .dom-creator-box{padding:16px;width:98%;border-radius:12px}
+      .dom-creator-title{font-size:0.95rem}
+      .dom-detail-box{width:96%;padding:16px}
+      .carrito-box{padding:10px}
+      .carrito-title{font-size:0.82rem}
+      .topbar-left .btn{font-size:0.7rem;padding:5px 8px}
+      .dom-tab{font-size:0.65rem;padding:4px 7px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="" alt="Logo">
+        <h1>Freakers</h1>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger">&#9776;</button>
+          <h2>&#128661; Domicilios</h2>
+          <button class="btn btn-primary" onclick="openDomicilioCreator()">+ Nuevo Domicilio</button>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <!-- Stats KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-primary">
+          <div class="kpi-label">Domicilios Hoy</div>
+          <div class="kpi-value" id="kpiHoy">0</div>
+        </div>
+        <div class="kpi-card kpi-success">
+          <div class="kpi-label">Ventas Hoy</div>
+          <div class="kpi-value" id="kpiVentas">$0</div>
+        </div>
+        <div class="kpi-card kpi-warning">
+          <div class="kpi-label">Pendientes</div>
+          <div class="kpi-value" id="kpiPendientes">0</div>
+        </div>
+        <div class="kpi-card kpi-acento">
+          <div class="kpi-label">Comisiones Apps</div>
+          <div class="kpi-value" id="kpiComisiones">$0</div>
+        </div>
+      </div>
+
+      <!-- Channel Tabs -->
+      <div class="dom-tabs" id="domTabs">
+        <button class="dom-tab active" onclick="filterChannel(this,'')">&#127760; Todos <span class="dom-count" id="countAll">0</span></button>
+        <button class="dom-tab" onclick="filterChannel(this,'WHATSAPP')">&#128172; WhatsApp <span class="dom-count" id="countWA">0</span></button>
+        <button class="dom-tab" onclick="filterChannel(this,'DIDIFOOD')">&#127837; DidiFood <span class="dom-count" id="countDD">0</span></button>
+        <button class="dom-tab" onclick="filterChannel(this,'UBEREATS')">&#128664; UberEats <span class="dom-count" id="countUE">0</span></button>
+        <button class="dom-tab" onclick="filterChannel(this,'RAPPI')">&#128295; Rappi <span class="dom-count" id="countRP">0</span></button>
+        <button class="dom-tab" onclick="filterChannel(this,'IFOOD')">&#127804; iFood <span class="dom-count" id="countIF">0</span></button>
+        <button class="dom-tab" onclick="filterChannel(this,'PEDIDOSYA')">&#128230; PedidosYa <span class="dom-count" id="countPY">0</span></button>
+      </div>
+
+      <!-- Main layout -->
+      <div class="dom-pos-layout">
+        <div class="dom-pos-left">
+          <div style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+            <button class="btn btn-outline" onclick="toggleWhatsappPanel()">&#128172; WhatsApp</button>
+          </div>
+          <div id="domiciliosList"></div>
+        </div>
+        <div class="dom-pos-right">
+        </div>
+      </div>
+
+      <!-- WhatsApp Panel (hidden by default) -->
+      <div class="whatsapp-panel" id="whatsappPanel" style="display:none">
+        <div class="whatsapp-panel-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:1.2rem">&#128172;</span>
+            <strong>WhatsApp</strong>
+          </div>
+          <div class="wa-status">
+            <span class="wa-status-dot" id="waStatusDot"></span>
+            <span style="font-size:0.76rem" id="waStatusText">Conectando...</span>
+          </div>
+          <button class="btn btn-sm btn-outline" onclick="toggleWhatsappPanel()">&#10005;</button>
+        </div>
+        <div class="whatsapp-panel-body">
+          <div style="padding:14px">
+            <div class="form-group">
+              <label>Enviar mensaje a (numero)</label>
+              <div style="display:flex;gap:8px">
+                <input type="text" id="waPhoneNumber" class="form-input" placeholder="573105743129">
+                <button class="btn btn-success" onclick="sendWhatsApp()">&#128228; Enviar</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Respuesta Rapida</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <select id="waRRSelect" class="form-input" style="flex:1" onchange="applyRRToWaPanel()">
+                  <option value="">-- Seleccionar --</option>
+                </select>
+                <button class="btn btn-sm btn-outline" onclick="applyRRToWaPanel()">Usar</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Mensaje</label>
+              <textarea id="waMessage" class="form-input" rows="3" placeholder="Hola! Tu domicilio esta en camino..."></textarea>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-sm btn-outline" onclick="sendWhatsApp()">&#128172; wa.me directo</button>
+              <button class="btn btn-sm btn-primary" onclick="sendWhatsAppAPI()">&#128268; API Business</button>
+            </div>
+          </div>
+          <iframe id="waWebFrame" src="" style="display:none"></iframe>
+        </div>
+      </div>
+
+      <!-- App Connection Indicators -->
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap" id="appIndicators"></div>
+
+    </main>
+  </div>
+
+  <!-- ====== DOMICILIO CREATOR MODAL ====== -->
+  <div class="dom-creator-overlay" id="domCreatorOverlay" onclick="if(event.target===this)cancelDomicilioCreator()">
+    <div class="dom-creator-box">
+      <button class="dom-creator-close" onclick="cancelDomicilioCreator()">&#10005;</button>
+      <div class="dom-creator-title">&#128722; Nuevo Domicilio</div>
+
+      <div class="dom-creator-body">
+        <!-- LEFT: Client info + product selector -->
+        <div class="dom-creator-left">
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+            <select id="domCanal" class="form-input"></select>
+            <input type="text" id="domClienteNombre" class="form-input" placeholder="Nombre del cliente">
+            <input type="text" id="domClienteTelefono" class="form-input" placeholder="Telefono">
+            <input type="text" id="domClienteDireccion" class="form-input" placeholder="Direccion de entrega">
+            <textarea id="domComentarios" class="form-input" rows="2" placeholder="Comentarios (ej: sin cebolla, aparte la salsa...)" style="resize:vertical;min-height:50px"></textarea>
+          </div>
+          <div class="cat-tabs" id="catTabs"></div>
+          <div class="prod-grid" id="prodGrid"></div>
+        </div>
+
+        <!-- RIGHT: Carrito -->
+        <div class="dom-creator-right">
+          <div class="carrito-box">
+            <div class="carrito-title">&#128722; Carrito</div>
+            <div class="carrito-items" id="carritoItems"></div>
+            <div class="carrito-totals">
+              <div class="carrito-total-row"><span>Productos</span><span id="ctProductos">$0</span></div>
+              <div class="dom-fee-input">
+                <label>Domicilio</label>
+                <input type="number" id="domDomicilioFee" class="form-input" value="0" min="0" step="100" onchange="updateCarritoTotals()" oninput="updateCarritoTotals()">
+              </div>
+              <div class="carrito-total-row" id="comisionRow" style="display:none"><span>Comision</span><span id="ctComision">$0</span></div>
+              <div class="carrito-total-row total-final"><span>Total</span><span id="ctTotal">$0</span></div>
+            </div>
+            <div class="carrito-actions">
+              <button class="btn btn-success" onclick="crearDomicilio()" style="width:100%">&#128228; Crear Domicilio</button>
+              <button class="btn btn-outline" onclick="cancelDomicilioCreator()" style="width:100%">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Overlay -->
+  <div class="dom-detail-overlay" id="domDetailOverlay" onclick="if(event.target===this)closeDomDetail()">
+    <div class="dom-detail-box" id="domDetailBox"></div>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    var domicilios = [];
+    var deliveryApps = [];
+    var activeChannel = '';
+    var waPanelVisible = false;
+    var categorias = [];
+    var productos = [];
+    var activeCatId = '';
+    var carrito = [];
+
+    async function initDomicilios() {
+      await initPage('domicilios');
+      await Promise.all([loadRespuestasRapidas(), loadDeliveryApps(), loadCategoriasProductos()]);
+      await loadDomicilios();
+      renderAppIndicators();
+      checkWhatsAppStatus();
+    }
+
+    async function loadCategoriasProductos() {
+      try {
+        var catData = await apiGet('categorias.php');
+        if (Array.isArray(catData)) categorias = catData;
+        var prodData = await apiGet('productos.php');
+        if (Array.isArray(prodData)) productos = prodData;
+      } catch(e) { console.error('loadCategoriasProductos error:', e); }
+    }
+
+    async function loadDeliveryApps() {
+      try {
+        var data = await apiGet('delivery_apps.php');
+        if (Array.isArray(data)) deliveryApps = data.filter(function(a) { return a.activo == 1; });
+      } catch(e) { console.error('loadDeliveryApps error:', e); }
+    }
+
+    async function loadDomicilios() {
+      try {
+        var data = await apiGet('ordenes.php', { action: 'domicilios', canal: activeChannel || undefined });
+        if (Array.isArray(data)) {
+          domicilios = data;
+          renderDomicilios();
+          updateKPIs();
+        }
+      } catch(e) { console.error('loadDomicilios error:', e); }
+    }
+
+    /* ========== DOMICILIO CREATOR (MODAL) ========== */
+    function openDomicilioCreator() {
+      carrito = [];
+      document.getElementById('domDomicilioFee').value = '0';
+      document.getElementById('domClienteNombre').value = '';
+      document.getElementById('domClienteTelefono').value = '';
+      document.getElementById('domClienteDireccion').value = '';
+      document.getElementById('domComentarios').value = '';
+      populateCanalSelect();
+      renderCatTabs();
+      renderProductGrid();
+      renderCarrito();
+      document.getElementById('domCreatorOverlay').classList.add('show');
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo('.dom-creator-box', { scale: 0.9, opacity: 0, y: 30 }, { scale: 1, opacity: 1, y: 0, duration: 0.35, ease: 'back.out(1.4)' });
+      }
+    }
+
+    function cancelDomicilioCreator() {
+      document.getElementById('domCreatorOverlay').classList.remove('show');
+      carrito = [];
+    }
+
+    function populateCanalSelect() {
+      var sel = document.getElementById('domCanal');
+      sel.innerHTML = '<option value="WHATSAPP">WhatsApp</option>';
+      deliveryApps.forEach(function(a) {
+        sel.innerHTML += '<option value="' + esc(a.nombre.toUpperCase()) + '">' + esc(a.nombre) + '</option>';
+      });
+      sel.innerHTML += '<option value="DIRECTO">Directo / Local</option>';
+      sel.onchange = function() { updateCarritoTotals(); };
+    }
+
+    /* ========== CATEGORIAS (tabs with images) ========== */
+    function renderCatTabs() {
+      var container = document.getElementById('catTabs');
+      if (!categorias.length) {
+        container.innerHTML = '<span style="font-size:0.76rem;color:rgba(255,255,255,0.3)">Sin categorias</span>';
+        return;
+      }
+      activeCatId = categorias[0].idCategoria || categorias[0].id;
+      container.innerHTML = categorias.map(function(c) {
+        var cid = c.idCategoria || c.id;
+        var catImg = c.imagen ? '<img src="' + esc(c.imagen) + '" class="cat-tab-img" alt="">' : '';
+        return '<button class="cat-tab' + (cid === activeCatId ? ' active' : '') + '" onclick="selectCat(\'' + esc(cid) + '\',this)">' + catImg + esc(c.nombre) + '</button>';
+      }).join('');
+    }
+
+    function selectCat(id, btn) {
+      activeCatId = id;
+      document.querySelectorAll('.cat-tab').forEach(function(t) { t.classList.remove('active'); });
+      btn.classList.add('active');
+      renderProductGrid();
+    }
+
+    function renderProductGrid() {
+      var container = document.getElementById('prodGrid');
+      var filtered = activeCatId ? productos.filter(function(p) {
+        return (p.idCategoria || p.categoria) === activeCatId;
+      }) : productos;
+      if (!filtered.length) {
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.25);font-size:0.78rem">Sin productos en esta categoria</div>';
+        return;
+      }
+      container.innerHTML = filtered.map(function(p) {
+        var img = getProductImage(p.imagen);
+        var pid = p.idProducto || p.id;
+        return '<div class="prod-card" onclick="agregarAlCarrito(\'' + esc(pid) + '\')">' +
+          '<img src="' + esc(img) + '" alt="">' +
+          '<div class="prod-name">' + esc(p.nombre) + '</div>' +
+          '<div class="prod-price">' + formatCOP(p.precio) + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function agregarAlCarrito(pid) {
+      var prod = productos.find(function(p) { return (p.idProducto || p.id) === pid; });
+      if (!prod) return;
+      var existing = carrito.find(function(c) { return c.idProducto === pid; });
+      if (existing) {
+        existing.cantidad++;
+      } else {
+        carrito.push({
+          idProducto: pid,
+          producto: prod.nombre,
+          cantidad: 1,
+          precioUnitario: parseFloat(prod.precio) || 0
+        });
+      }
+      renderCarrito();
+      if (typeof gsap !== 'undefined') {
+        var last = document.querySelector('.carrito-item:last-child');
+        if (last) gsap.from(last, { x: 20, opacity: 0, duration: 0.2, ease: 'power2.out' });
+      }
+    }
+
+    function renderCarrito() {
+      var container = document.getElementById('carritoItems');
+      if (!carrito.length) {
+        container.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,0.25);font-size:0.78rem">Carrito vacio</div>';
+        updateCarritoTotals();
+        return;
+      }
+      container.innerHTML = carrito.map(function(item, idx) {
+        return '<div class="carrito-item">' +
+          '<span class="ci-name">' + esc(item.producto) + '</span>' +
+          '<span class="ci-qty">' +
+            '<button onclick="changeQty(' + idx + ',-1)">-</button>' +
+            '<span>' + item.cantidad + '</span>' +
+            '<button onclick="changeQty(' + idx + ',1)">+</button>' +
+          '</span>' +
+          '<span class="ci-price">' + formatCOP(item.precioUnitario * item.cantidad) + '</span>' +
+          '<button class="ci-del" onclick="removeItem(' + idx + ')">&#10005;</button>' +
+          '</div>';
+      }).join('');
+      updateCarritoTotals();
+    }
+
+    function changeQty(idx, delta) {
+      carrito[idx].cantidad = Math.max(1, carrito[idx].cantidad + delta);
+      renderCarrito();
+    }
+
+    function removeItem(idx) {
+      carrito.splice(idx, 1);
+      renderCarrito();
+    }
+
+    function updateCarritoTotals() {
+      var totalProductos = carrito.reduce(function(s, item) { return s + item.precioUnitario * item.cantidad; }, 0);
+      var domFee = parseFloat(document.getElementById('domDomicilioFee').value) || 0;
+      var canal = document.getElementById('domCanal').value;
+      var app = deliveryApps.find(function(a) { return a.nombre.toUpperCase() === canal; });
+      var comisionPct = app ? parseFloat(app.comision) : 0;
+      var comisionVal = Math.round(totalProductos * comisionPct / 100);
+      var totalFinal = totalProductos + domFee;
+
+      document.getElementById('ctProductos').textContent = formatCOP(totalProductos);
+      var comRow = document.getElementById('comisionRow');
+      if (comisionPct > 0) {
+        comRow.style.display = 'flex';
+        document.getElementById('ctComision').textContent = '-' + comisionPct + '% = ' + formatCOP(comisionVal);
+      } else {
+        comRow.style.display = 'none';
+      }
+      document.getElementById('ctTotal').textContent = formatCOP(totalFinal);
+    }
+
+    async function crearDomicilio() {
+      if (!carrito.length) { toast('Agrega al menos un producto', 'error'); return; }
+      var domFee = parseFloat(document.getElementById('domDomicilioFee').value) || 0;
+      var data = {
+        action: 'crear',
+        idMesa: 'DOMICILIO',
+        canal: document.getElementById('domCanal').value,
+        items: carrito,
+        descuento: 0,
+        egreso: 0,
+        comentario: document.getElementById('domComentarios').value.trim(),
+        domicilio: domFee,
+        cliente_nombre: document.getElementById('domClienteNombre').value.trim(),
+        cliente_telefono: document.getElementById('domClienteTelefono').value.trim(),
+        cliente_direccion: document.getElementById('domClienteDireccion').value.trim()
+      };
+      var btn = document.querySelector('.carrito-actions .btn-success');
+      if (btn) { btn.disabled = true; btn.textContent = 'Creando...'; }
+      try {
+        var res = await apiPost('ordenes.php', data);
+        if (res && res.exito) {
+          toast('Domicilio creado: ' + res.idOrden);
+          cancelDomicilioCreator();
+          await loadDomicilios();
+        } else {
+          toast(res && res.mensaje ? res.mensaje : 'Error al crear domicilio', 'error');
+        }
+      } catch (err) {
+        toast('Error de conexion', 'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '&#128228; Crear Domicilio'; }
+      }
+    }
+
+    /* ========== DOMICILIOS LIST ========== */
+    function renderDomicilios() {
+      var container = document.getElementById('domiciliosList');
+      var filtered = activeChannel ? domicilios.filter(function(d) { return d.canal === activeChannel; }) : domicilios;
+      if (!filtered.length) {
+        container.innerHTML = '<div class="card" style="text-align:center;padding:30px;color:rgba(255,255,255,0.3)">No hay domicilios</div>';
+      } else {
+        container.innerHTML = filtered.map(function(d) {
+          var app = deliveryApps.find(function(a) { return a.nombre === d.canal; });
+          var comisionPct = app ? parseFloat(app.comision) : 0;
+          var comisionVal = Math.round(parseFloat(d.total || 0) * comisionPct / 100);
+          var neto = parseFloat(d.total || 0) - comisionVal;
+          var statusBadge = {
+            PENDIENTE: 'warning', EN_PREPARACION: 'info', EN_CAMINO: 'primary',
+            ENTREGADO: 'success', CANCELADO: 'danger'
+          }[d.estado] || 'warning';
+          var appLogo = app && app.logo ? app.logo : '';
+          var itemsText = (d.items || []).map(function(it) {
+            return it.cantidad + 'x ' + (it.producto || it.idProducto);
+          }).join(', ');
+          return '<div class="dom-card" onclick="openDomDetail(\'' + d.idOrden + '\')">' +
+            '<div class="dom-card-header">' +
+              '<div class="dom-card-app">' +
+                (appLogo ? '<img src="' + esc(appLogo) + '" alt="">' : '') +
+                '<span>' + esc(d.canal || 'Directo') + '</span>' +
+              '</div>' +
+              '<div class="dom-card-time">' + timeAgo(d.fecha) + '</div>' +
+            '</div>' +
+            (d.cliente_nombre ? '<div class="dom-card-client">&#128100; ' + esc(d.cliente_nombre) + (d.cliente_telefono ? ' &bull; ' + esc(d.cliente_telefono) : '') + '</div>' : '') +
+            (d.cliente_direccion ? '<div class="dom-card-addr">&#128205; ' + esc(d.cliente_direccion) + '</div>' : '') +
+            (d.comentario ? '<div class="dom-card-addr" style="color:rgba(233,69,96,0.7);font-style:italic">&#128221; ' + esc(d.comentario) + '</div>' : '') +
+            '<div class="dom-card-items">' + esc(itemsText) + '</div>' +
+            '<div class="dom-card-footer">' +
+              '<div>' +
+                '<span class="dom-card-total">' + formatCOP(d.total) + '</span>' +
+                (comisionPct > 0 ? ' <span class="dom-card-comision">(-' + comisionPct + '% = ' + formatCOP(comisionVal) + ')</span>' : '') +
+              '</div>' +
+              (comisionPct > 0 ? '<div class="dom-card-neto">Neto: ' + formatCOP(neto) + '</div>' : '') +
+              '<span class="badge badge-' + statusBadge + '">' + esc(d.estado) + '</span>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      var counts = {};
+      domicilios.forEach(function(d) { counts[d.canal || 'DIRECTO'] = (counts[d.canal || 'DIRECTO'] || 0) + 1; });
+      document.getElementById('countAll').textContent = domicilios.length;
+      document.getElementById('countWA').textContent = counts['WHATSAPP'] || 0;
+      document.getElementById('countDD').textContent = counts['DIDIFOOD'] || 0;
+      document.getElementById('countUE').textContent = counts['UBEREATS'] || 0;
+      document.getElementById('countRP').textContent = counts['RAPPI'] || 0;
+      document.getElementById('countIF').textContent = counts['IFOOD'] || 0;
+      document.getElementById('countPY').textContent = counts['PEDIDOSYA'] || 0;
+    }
+
+    /* ========== DETAIL VIEW (with Respuesta Rapida picker + editable textarea) ========== */
+    var respuestasRapidas = [];
+    async function loadRespuestasRapidas() {
+      try {
+        var data = await apiGet('respuestas_rapidas.php');
+        if (Array.isArray(data)) respuestasRapidas = data.filter(function(r) { return r.activo == 1; });
+        else console.warn('respuestas_rapidas: respuesta no es array:', data);
+      } catch(e) { console.error('loadRespuestasRapidas error:', e); }
+    }
+
+    function openDomDetail(idOrden) {
+      var dom = domicilios.find(function(d) { return d.idOrden === idOrden; });
+      if (!dom) return;
+      var app = deliveryApps.find(function(a) { return a.nombre === dom.canal; });
+      var comisionPct = app ? parseFloat(app.comision) : 0;
+      var comisionVal = Math.round(parseFloat(dom.total || 0) * comisionPct / 100);
+      var neto = parseFloat(dom.total || 0) - comisionVal;
+      var domFee = parseFloat(dom.domicilio || 0);
+      var itemsList = (dom.items || []).map(function(it) {
+        return '<div class="dom-detail-item"><span>' + it.cantidad + 'x ' + esc(it.producto || it.idProducto) + '</span><span>' + formatCOP(it.totalLinea || it.precioUnitario * it.cantidad) + '</span></div>';
+      }).join('');
+      var statusOptions = ['PENDIENTE','EN_PREPARACION','EN_CAMINO','ENTREGADO','CANCELADO'].map(function(st) {
+        return '<option value="' + st + '"' + (dom.estado === st ? ' selected' : '') + '>' + st.replace(/_/g, ' ') + '</option>';
+      }).join('');
+
+      /* Build Respuesta Rapida select options */
+      var rrSelectOpts = '<option value="">-- Seleccionar Respuesta Rapida --</option>';
+      respuestasRapidas.forEach(function(r) {
+        rrSelectOpts += '<option value="' + esc(r.id) + '">' + esc(r.nombre) + '</option>';
+      });
+
+      var enviarSection = '';
+      if (dom.cliente_telefono) {
+        enviarSection = '<div class="enviar-msg-section">' +
+          '<div style="font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:8px">&#128172; Enviar Mensaje</div>' +
+          '<div class="rr-pick-row">' +
+            '<select id="detailRRSelect" class="form-input" onchange="applyRRToDetail(\'' + idOrden + '\')">' + rrSelectOpts + '</select>' +
+          '</div>' +
+          '<textarea id="detailMsgText" class="form-input" rows="3" placeholder="Escribe o selecciona una respuesta rapida..." style="resize:vertical;min-height:70px"></textarea>' +
+          '<div style="display:flex;gap:8px;margin-top:8px">' +
+            '<button class="btn btn-primary" style="flex:1" onclick="sendDetailMessage(\'' + idOrden + '\', false)">&#128172; wa.me</button>' +
+            '<button class="btn btn-sm btn-outline" onclick="sendDetailMessage(\'' + idOrden + '\', true)">&#128268; API</button>' +
+          '</div>' +
+        '</div>';
+      }
+
+      var box = document.getElementById('domDetailBox');
+      box.innerHTML =
+        '<div class="dom-detail-title">Domicilio #' + esc(idOrden) + '</div>' +
+        '<div class="dom-detail-row"><span class="label">Canal</span><span class="value">' + esc(dom.canal || 'Directo') + '</span></div>' +
+        '<div class="dom-detail-row"><span class="label">Cliente</span><span class="value">' + esc(dom.cliente_nombre || '-') + '</span></div>' +
+        '<div class="dom-detail-row"><span class="label">Telefono</span><span class="value">' + esc(dom.cliente_telefono || '-') + '</span></div>' +
+        '<div class="dom-detail-row"><span class="label">Direccion</span><span class="value">' + esc(dom.cliente_direccion || '-') + '</span></div>' +
+        (dom.comentario ? '<div class="dom-detail-row"><span class="label">Comentarios</span><span class="value" style="font-style:italic;color:rgba(233,69,96,0.8)">' + esc(dom.comentario) + '</span></div>' : '') +
+        '<div class="dom-detail-row"><span class="label">Fecha</span><span class="value">' + esc(dom.fecha || '-') + '</span></div>' +
+        '<div class="dom-detail-items">' + itemsList + '</div>' +
+        '<div class="dom-detail-row"><span class="label">Total Productos</span><span class="value">' + formatCOP(parseFloat(dom.subtotal || dom.total || 0) - domFee) + '</span></div>' +
+        (domFee > 0 ? '<div class="dom-detail-row"><span class="label">Domicilio Fee</span><span class="value">' + formatCOP(domFee) + '</span></div>' : '') +
+        '<div class="dom-detail-row" style="font-weight:800;font-size:1rem"><span class="label" style="color:var(--color-acento)">Total</span><span class="value" style="color:var(--color-acento)">' + formatCOP(dom.total) + '</span></div>' +
+        (comisionPct > 0 ?
+          '<div class="dom-detail-row"><span class="label">Comision ' + comisionPct + '%</span><span class="value" style="color:var(--color-acento)">-' + formatCOP(comisionVal) + '</span></div>' +
+          '<div class="dom-detail-row"><span class="label">Neto</span><span class="value" style="color:#4ade80">' + formatCOP(neto) + '</span></div>' : '') +
+        '<div class="dom-detail-row"><span class="label">Estado</span>' +
+          '<select class="form-input" style="width:auto;font-size:0.78rem" onchange="updateEstado(\'' + idOrden + '\',this.value)">' + statusOptions + '</select>' +
+        '</div>' +
+        '<div class="dom-detail-actions">' +
+          enviarSection +
+          '<button class="btn btn-outline" style="width:100%" onclick="closeDomDetail()">Cerrar</button>' +
+        '</div>';
+
+      document.getElementById('domDetailOverlay').classList.add('show');
+    }
+
+    function closeDomDetail() {
+      document.getElementById('domDetailOverlay').classList.remove('show');
+    }
+
+    /* Apply selected Respuesta Rapida to detail message textarea */
+    function applyRRToDetail(idOrden) {
+      var sel = document.getElementById('detailRRSelect');
+      var rrId = sel.value;
+      var textarea = document.getElementById('detailMsgText');
+      if (!rrId) return;
+      var dom = domicilios.find(function(d) { return d.idOrden === idOrden; });
+      var rr = respuestasRapidas.find(function(r) { return r.id === rrId; });
+      if (!dom || !rr) return;
+      var itemsText = (dom.items || []).map(function(it) {
+        return it.cantidad + 'x ' + (it.producto || it.idProducto);
+      }).join(', ');
+      var msg = rr.mensaje
+        .replace(/\{cliente\}/g, dom.cliente_nombre || '')
+        .replace(/\{productos\}/g, itemsText)
+        .replace(/\{total\}/g, formatCOP(parseFloat(dom.subtotal || dom.total || 0) - parseFloat(dom.domicilio || 0)))
+        .replace(/\{domicilio\}/g, formatCOP(parseFloat(dom.domicilio || 0)))
+        .replace(/\{total_domicilio\}/g, formatCOP(parseFloat(dom.total || 0)))
+        .replace(/\{canal\}/g, dom.canal || '')
+        .replace(/\{id_orden\}/g, dom.idOrden || '')
+        .replace(/\{negocio\}/g, CONFIG.NOMBRE_NEGOCIO || 'Freakers')
+        .replace(/\{telefono\}/g, CONFIG.TELEFONO_NEGOCIO || dom.cliente_telefono || '');
+      textarea.value = msg;
+    }
+
+    /* Send message from detail view */
+    function sendDetailMessage(idOrden, useApi) {
+      var dom = domicilios.find(function(d) { return d.idOrden === idOrden; });
+      if (!dom || !dom.cliente_telefono) { toast('No hay telefono', 'error'); return; }
+      var msg = document.getElementById('detailMsgText').value.trim();
+      var phone = (dom.cliente_telefono || '').replace(/[^0-9]/g, '');
+      if (!phone) { toast('Telefono invalido', 'error'); return; }
+      if (useApi && CONFIG.WHATSAPP_API_TOKEN) {
+        sendWhatsAppAPIDirect(phone, msg);
+      } else {
+        var url = 'https://wa.me/' + phone + (msg ? '?text=' + encodeURIComponent(msg) : '');
+        window.open(url, '_blank');
+        toast('Abriendo WhatsApp...');
+      }
+    }
+
+    async function sendWhatsAppAPIDirect(phone, msg) {
+      if (!CONFIG.WHATSAPP_API_TOKEN) { toast('No hay API token. Usa Configuracion > WhatsApp.', 'error'); return; }
+      toast('Enviando via WhatsApp Business API...');
+      var res = await apiPost('delivery_apps.php', {
+        action: 'sendWhatsapp',
+        phone: phone,
+        message: msg,
+        api_token: CONFIG.WHATSAPP_API_TOKEN,
+        waba_id: CONFIG.WHATSAPP_WABA_ID
+      });
+      if (res && res.exito) toast('Mensaje enviado');
+      else toast(res && res.mensaje ? res.mensaje : 'Error al enviar', 'error');
+    }
+
+    /* Apply selected Respuesta Rapida to WhatsApp panel */
+    function applyRRToWaPanel() {
+      var sel = document.getElementById('waRRSelect');
+      var rrId = sel.value;
+      var textarea = document.getElementById('waMessage');
+      if (!rrId) return;
+      var rr = respuestasRapidas.find(function(r) { return r.id === rrId; });
+      if (!rr) return;
+      textarea.value = rr.mensaje;
+    }
+
+    async function updateEstado(id, estado) {
+      var res = await apiPost('ordenes.php', { action: 'actualizarEstado', idOrden: id, estado: estado });
+      if (res && res.exito) {
+        toast('Estado actualizado');
+        await loadDomicilios();
+        closeDomDetail();
+      }
+    }
+
+    /* ========== KPIs ========== */
+    function updateKPIs() {
+      var hoy = new Date().toISOString().slice(0, 10);
+      var hoyList = domicilios.filter(function(d) { return d.fecha && d.fecha.startsWith(hoy); });
+      document.getElementById('kpiHoy').textContent = hoyList.length;
+      var ventas = hoyList.reduce(function(s, d) { return s + parseFloat(d.total || 0); }, 0);
+      document.getElementById('kpiVentas').textContent = formatCOP(ventas);
+      document.getElementById('kpiPendientes').textContent = hoyList.filter(function(d) { return d.estado === 'PENDIENTE'; }).length;
+      var comisiones = hoyList.reduce(function(s, d) {
+        var app = deliveryApps.find(function(a) { return a.nombre === d.canal; });
+        var pct = app ? parseFloat(app.comision) : 0;
+        return s + Math.round(parseFloat(d.total || 0) * pct / 100);
+      }, 0);
+      document.getElementById('kpiComisiones').textContent = formatCOP(comisiones);
+    }
+
+    /* ========== CHANNEL FILTER ========== */
+    function filterChannel(btn, ch) {
+      activeChannel = ch;
+      document.querySelectorAll('.dom-tab').forEach(function(t) { t.classList.remove('active'); });
+      btn.classList.add('active');
+      loadDomicilios();
+    }
+
+    /* ========== WHATSAPP PANEL ========== */
+    function toggleWhatsappPanel() {
+      waPanelVisible = !waPanelVisible;
+      var panel = document.getElementById('whatsappPanel');
+      panel.style.display = waPanelVisible ? 'block' : 'none';
+      if (waPanelVisible) {
+        loadWhatsAppFrame();
+        populateWaRRSelect();
+      }
+    }
+
+    function populateWaRRSelect() {
+      var sel = document.getElementById('waRRSelect');
+      sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+      respuestasRapidas.forEach(function(r) {
+        sel.innerHTML += '<option value="' + esc(r.id) + '">' + esc(r.nombre) + '</option>';
+      });
+    }
+
+    function checkWhatsAppStatus() {
+      var dot = document.getElementById('waStatusDot');
+      var text = document.getElementById('waStatusText');
+      if (CONFIG.WHATSAPP_API_TOKEN) {
+        dot.classList.remove('offline');
+        text.textContent = 'API Business conectada';
+      } else {
+        dot.classList.add('offline');
+        text.textContent = 'Sin API (modo directo)';
+      }
+    }
+
+    function loadWhatsAppFrame() {
+      var frame = document.getElementById('waWebFrame');
+      if (frame && !frame.src) {
+        frame.src = 'https://web.whatsapp.com';
+        frame.style.display = 'block';
+      }
+    }
+
+    function sendWhatsApp() {
+      var phone = document.getElementById('waPhoneNumber').value.trim().replace(/[^0-9]/g, '');
+      var msg = document.getElementById('waMessage').value.trim();
+      if (!phone) { toast('Ingresa un numero', 'error'); return; }
+      var url = 'https://wa.me/' + phone + (msg ? '?text=' + encodeURIComponent(msg) : '');
+      window.open(url, '_blank');
+      toast('Abriendo WhatsApp...');
+    }
+
+    async function sendWhatsAppAPI() {
+      var phone = document.getElementById('waPhoneNumber').value.trim().replace(/[^0-9]/g, '');
+      var msg = document.getElementById('waMessage').value.trim();
+      if (!phone) { toast('Ingresa un numero', 'error'); return; }
+      sendWhatsAppAPIDirect(phone, msg);
+    }
+
+    /* ========== APP INDICATORS ========== */
+    function renderAppIndicators() {
+      var container = document.getElementById('appIndicators');
+      container.innerHTML = deliveryApps.map(function(app) {
+        return '<div class="badge" style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06)">' +
+          (app.logo ? '<img src="' + esc(app.logo) + '" style="width:18px;height:18px;border-radius:4px">' : '') +
+          '<span style="font-size:0.76rem;font-weight:600">' + esc(app.nombre) + '</span>' +
+          '<span class="wa-status-dot' + (app.webhook_url ? '' : ' offline') + '"></span>' +
+          '<span style="font-size:0.66rem;color:rgba(255,255,255,0.4)">' + (app.comision || 0) + '%</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    /* ========== ESC key for modals ========== */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (document.getElementById('domCreatorOverlay').classList.contains('show')) {
+          cancelDomicilioCreator();
+        } else if (document.getElementById('domDetailOverlay').classList.contains('show')) {
+          closeDomDetail();
+        }
+      }
+    });
+
+    /* ========== INIT ========== */
+    initDomicilios();
+  </script>
+</body>
+</html>

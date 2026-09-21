@@ -1,0 +1,25 @@
+# ============================================================
+#  Adjuntos de tickets — PROTEGIDOS
+#  Estos archivos pueden contener datos sensibles de los
+#  clientes. Se bloquea TODO acceso web directo: no se pueden
+#  abrir ni descargar escribiendo la URL, ni listar la carpeta.
+#  Solo un usuario autenticado con acceso al ticket puede verlos
+#  a traves de /api/ticket_adjunto.php (que los lee desde el
+#  sistema de archivos tras validar sesion, rol y propiedad).
+# ============================================================
+
+Options -Indexes
+
+# Nada es accesible por web directamente
+Require all denied
+
+# Y por si el motor PHP estuviera activo, se desactiva la ejecucion
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>

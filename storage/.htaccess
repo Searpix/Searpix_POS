@@ -1,0 +1,19 @@
+# Seguridad: la carpeta 'storage' guarda archivos subidos por usuarios
+# (comprobantes). Impedimos la ejecución de cualquier script del lado servidor,
+# pero permitimos servir imágenes y PDF para que el admin pueda verlos.
+
+# Desactivar ejecución de PHP / scripts
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Bloquear tipos ejecutables por si el motor PHP está en otro módulo
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|pl|py|cgi|sh|asp|aspx)$">
+    Require all denied
+</FilesMatch>

@@ -1,0 +1,61 @@
+# Comandix / Freakers - Apache hardening
+Options -Indexes
+DirectoryIndex index.html
+
+ErrorDocument 403 /error.html
+ErrorDocument 404 /error.html
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: blob: https:; font-src 'self' https: data:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; connect-src 'self' https:; media-src 'self' blob: https:; form-action 'self'"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Authorization forwarding for PHP/FastCGI
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Sensitive files / directories
+RewriteRule ^(?:config|docs|libs|storage)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:\.env|composer\.(?:json|lock)|package(?:-lock)?\.json|phpunit\.xml|.*\.(?:sql|bak|log|ini|conf|dist))$ - [F,L,NC]
+RewriteRule ^(?:api|systems/api)(?:/)?$ - [F,L,NC]
+
+# Tenant physical storage is never directly browsable. The only entry is
+# /tenant/<id>/..., internally mapped below.
+RewriteRule ^tenants(?:/|$) - [F,L,NC]
+
+# Clean tenant URL -> isolated tenant systems directory.
+RewriteRule ^tenant/([A-Za-z0-9_-]{1,64})(?:/(.*))?$ tenants/$1/systems/$2 [END,E=INTERNAL_TENANT:1,NE]
+
+# Clean public URLs: /login -> login.html, /api/auth -> api/auth.php.
+RewriteCond %{THE_REQUEST} \s/+([A-Za-z0-9_/-]+)\.html(?:[\s?]|$) [NC]
+RewriteRule ^(.+)\.html$ /$1 [R=301,L,NE]
+
+RewriteCond %{THE_REQUEST} \s/+([A-Za-z0-9_/-]+)\.php(?:[\s?]|$) [NC]
+# Solo redirigir peticiones GET a la URL limpia. NUNCA tocar POST (rompe el
+# envio de formularios) ni las rutas de API que deben responder JSON directo.
+RewriteCond %{REQUEST_METHOD} =GET
+RewriteCond %{REQUEST_URI} !^/(?:api|systems/api)/ [NC]
+RewriteRule ^(.+)\.php$ /$1 [R=301,L,NE]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+?)/?$ $1.html [END,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+?)/?$ $1.php [END,QSA]
+
+# /systems and /views are valid entry points, but directories themselves
+# cannot be listed.
+RewriteRule ^systems/?$ systems/index.html [END]
+RewriteRule ^views/?$ views/login.html [END]
+</IfModule>

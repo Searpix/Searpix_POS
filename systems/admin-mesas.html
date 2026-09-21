@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Mesas - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><img src="https://placehold.co/40x40/6C3CE1/fff?text=F" alt="Logo"><h1>Freakers POS</h1></div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">&#9776;</button>
+          <h2>&#129372; Administrar Mesas</h2>
+          <button class="btn btn-primary" onclick="openMesaModal()">&#10133; Nueva Mesa</button>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+
+          <table class="data-table" id="mesasTable">
+          <thead><tr><th>Numero</th><th>Clase</th><th>Capacidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mesa Modal -->
+  <div class="modal-overlay" id="modalMesa">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="mesaModalTitle">&#10133; Nueva Mesa</h3>
+        <button class="modal-close" onclick="closeModal('modalMesa')">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Numero de Mesa</label>
+        <input type="text" id="mesaNumero" class="form-input" placeholder="Ej: 1, BARRA 1, VIP 2" required>
+      </div>
+      <div class="form-group">
+        <label>Clase</label>
+        <select id="mesaClase" class="form-input">
+          <option value="MESAS">MESAS</option>
+          <option value="BARRA">BARRA</option>
+          <option value="VIP">VIP</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Capacidad</label>
+        <input type="number" id="mesaCapacidad" class="form-input" min="1" value="4">
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="mesaEstado" class="form-input">
+          <option value="LIBRE">LIBRE</option>
+          <option value="OCUPADA">OCUPADA</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="guardarMesa()">Guardar</button>
+    </div>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    initPage('mesas', true);
+
+    var mesas = [];
+
+    async function loadMesas() {
+      var data = await apiGet('mesas.php', { action: 'todas' });
+      mesas = Array.isArray(data) ? data : [];
+      renderTable();
+    }
+
+    function renderTable() {
+      var html = '';
+      mesas.forEach(function(m) {
+        var estadoBadge = m.estado === 'LIBRE' ? 'badge-success' : 'badge-danger';
+        var claseLabel = { BARRA: '&#129380; BARRA', VIP: '&#128081; VIP', MESAS: '&#129364; MESAS' }[m.clase || 'MESAS'] || m.clase;
+        html += '<tr>' +
+          '<td style="font-weight:700;font-size:1.1rem;">' + esc(m.numero) + '</td>' +
+          '<td><span class="badge" style="background:rgba(108,60,225,0.15);color:rgba(255,255,255,0.7)">' + claseLabel + '</span></td>' +
+          '<td>' + m.capacidad + ' personas</td>' +
+          '<td><span class="badge ' + estadoBadge + '">' + esc(m.estado) + '</span></td>' +
+          '<td>' +
+            '<button class="btn btn-sm btn-outline" onclick="editMesa(\'' + m.idMesa + '\')">&#9998;</button> ' +
+            '<button class="btn btn-sm btn-danger" onclick="eliminarMesa(\'' + m.idMesa + '\')">&#128465;</button>' +
+          '</td>' +
+        '</tr>';
+      });
+      document.querySelector('#mesasTable tbody').innerHTML = html;
+    }
+
+    function openMesaModal(mesa) {
+      document.getElementById('mesaModalTitle').textContent = mesa ? '&#9998; Editar Mesa' : '&#10133; Nueva Mesa';
+      document.getElementById('mesaNumero').value = mesa ? mesa.numero : '';
+      document.getElementById('mesaCapacidad').value = mesa ? mesa.capacidad : 4;
+      document.getElementById('mesaEstado').value = mesa ? mesa.estado : 'LIBRE';
+      document.getElementById('mesaClase').value = mesa ? (mesa.clase || 'MESAS') : 'MESAS';
+      document.getElementById('modalMesa').dataset.id = mesa ? mesa.idMesa : '';
+      openModal('modalMesa');
+    }
+
+    function editMesa(id) {
+      var m = mesas.find(function(x) { return x.idMesa === id; });
+      if (m) openMesaModal(m);
+    }
+
+    async function guardarMesa() {
+      var id = document.getElementById('modalMesa').dataset.id;
+      var numero = document.getElementById('mesaNumero').value.trim();
+      var capacidad = parseInt(document.getElementById('mesaCapacidad').value);
+      var estado = document.getElementById('mesaEstado').value;
+      var clase = document.getElementById('mesaClase').value;
+      if (!numero || !capacidad) { toast('Llena los campos', 'error'); return; }
+      var res = await apiPost('mesas.php', { id: id, numero: numero, capacidad: capacidad, estado: estado, clase: clase });
+      if (res && res.exito) {
+        toast('Mesa guardada');
+        closeModal('modalMesa');
+        loadMesas();
+      } else { toast(res && res.mensaje ? res.mensaje : 'Error', 'error'); }
+    }
+
+    async function eliminarMesa(id) {
+      if (!confirm('Eliminar esta mesa?')) return;
+      var res = await apiPost('mesas.php', { action: 'eliminar', id: id });
+      if (res && res.exito) { toast('Mesa eliminada'); loadMesas(); }
+      else { toast(res && res.mensaje ? res.mensaje : 'Error', 'error'); }
+    }
+
+    loadMesas();
+  </script>
+</body>
+</html>

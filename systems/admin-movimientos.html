@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Searpix/crebulmaifrikex/refs/heads/main/logo-mroado.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Movimientos - Freakers POS</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><img src="https://placehold.co/40x40/6C3CE1/fff?text=F" alt="Logo"><h1>Freakers POS</h1></div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer"><div class="license-badge" id="license-badge">🔑 Licencia: <span id="license-status-text">—</span></div></div>
+    </aside>
+    <div class="sidebar-backdrop" onclick="closeSidebar()"></div>
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">☰</button>
+          <h2>📜 Movimientos</h2>
+        </div>
+        <div class="topbar-right"></div>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+
+          <table class="data-table" id="movTable">
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Referencia</th><th>Descripción</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/licencia.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    initPage('movimientos', true);
+
+    async function loadMovimientos() {
+      const data = await apiGet('movimientos.php');
+      const movs = data || [];
+      let html = '';
+      movs.forEach(m => {
+        const actionBadge = m.accion?.includes('ELIMINAR') || m.accion?.includes('ELIMINADA') ? 'badge-danger' : m.accion?.includes('CREAR') ? 'badge-success' : m.accion?.includes('EDITAR') || m.accion?.includes('CONFIG') ? 'badge-info' : 'badge-primary';
+        html += `<tr>
+          <td style="font-size:0.75rem;">${timeAgo(m.fecha)}</td>
+          <td>${esc(m.usuario || m.usuarioNombre || '')}</td>
+          <td><span class="badge ${actionBadge}">${esc(m.accion)}</span></td>
+          <td style="font-size:0.75rem;">${esc(m.orden || m.idReferencia || '')}</td>
+          <td style="font-size:0.8rem;">${esc(m.descripcion || '')}</td>
+        </tr>`;
+      });
+      document.querySelector('#movTable tbody').innerHTML = html;
+    }
+
+    loadMovimientos();
+  </script>
+</body>
+</html>
